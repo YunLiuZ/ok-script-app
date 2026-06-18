@@ -33,7 +33,7 @@ FEATURE_NAMES = [
     "Daily_New_Cancel",
     "Sign_Button",
     "Sign_Daily_Skip",
-    "Daliy_Sign_Success",  # 注意 COCO 里拼写是 Daliy
+    "Daily_Sign_Success",
     "Gift_Store",
     "Gift_Daily",
     "Gift_Daily_Finish",

@@ -6,11 +6,7 @@ from typing import List
 
 import numpy as np
 
-from ok import BaseTask, Logger, find_boxes_by_name, og, find_color_rectangles, mask_white
-from ok import CannotFindException
-import cv2
-
-from ok import BaseTask
+from ok import BaseTask, Logger, og, CannotFindException
 
 class BaseOmjTask(BaseTask):
 
@@ -18,20 +14,26 @@ class BaseOmjTask(BaseTask):
         super().__init__(*args, **kwargs)
         self.name = "基本设置"
         self.description = "切换御魂 判断是否在主页"
-    # 不太确定logged_in(self):    @logged_in.setter
-    @property 
-    def logged_in(self):
-        return og.my_app.logged_in
 
-    @logged_in.setter
-    def logged_in(self, value):
-        og.my_app.logged_in = value
+    # ---- 自动代理：self.xxx → og.my_app.xxx ----
+    _GLOBAL_ATTRS = {"logged_in", "state"}
+
+    def __getattr__(self, name):
+        if name in self._GLOBAL_ATTRS:
+            return getattr(og.my_app, name)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+    def __setattr__(self, name, value):
+        if name in self._GLOBAL_ATTRS:
+            setattr(og.my_app, name, value)
+        else:
+            super().__setattr__(name, value)
 
 
     def In_Home(self):
         return self.find_one(
             ['Home_Town', 'Home_Store', 'Home_Sign'],
-            threshold=0.6
+            threshold=0.8,box=self.box_of_screen(0,0,1,1)
         ) is not None
 
 
@@ -47,13 +49,11 @@ class BaseOmjTask(BaseTask):
             if home_button:= self.find_one(
                 'Home_Button',
                 box=search_box,
-                threshold=0.6
+                threshold=0.8
             ):
                 self.click(home_button, after_sleep=3)
                 self.log_info('点击Home_Button')
                 return
-
-
             if back_button:= self.find_one(
                 'Back',
                 box=search_box,
@@ -63,12 +63,11 @@ class BaseOmjTask(BaseTask):
                 self.log_info('点击Back')
                 return
             
-            if Back := self.find_one(['Cancel_Old','Daily_New_Cancel'],box=self.box_of_screen(0.7,0,1,0.7),threshold=0.5):
+            if Back := self.find_one(['Cancel_Old','Daily_New_Cancel'],box=self.box_of_screen(0.5,0,1,0.7),threshold=0.8):
                 self.click(Back, after_sleep=2)
                 self.log_info('关闭了某个窗口!')
                 return
             self.log_info('什么都没点击')
-            self.click_relative(0.1,0.05,after_sleep=3)
 
         return self.wait_until(
             self.In_Home,

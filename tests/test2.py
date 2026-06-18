@@ -226,7 +226,7 @@ FEATURE_NAMES = [
     "Daily_New_Cancel",
     "Sign_Button",
     "Sign_Daily_Skip",
-    "Daliy_Sign_Success",
+    "Daily_Sign_Success",
     "Gift_Store",
     "Gift_Daily",
     "Gift_Daily_Finish",
