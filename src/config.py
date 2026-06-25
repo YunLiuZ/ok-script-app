@@ -114,7 +114,9 @@ config = {
     'onetime_tasks': [  # 用户点击触发的任务
         ["src.tasks.DailyTask", "DailyTask"],
         ["src.tasks.SoulZonesTask", "SoulZonesTask"],
-        ["src.tasks.MyOneTimeTask", "MyOneTimeTask"],
+        ["src.tasks.AreaBossTask", "AreaBossTask"],
+        ["src.tasks.GameEventsBattleTask", "GameEventsBattleTask"],
+        
         ["ok", "DiagnosisTask"],
     ],
 }

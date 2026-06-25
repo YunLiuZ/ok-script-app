@@ -1,4 +1,3 @@
-from src.tasks.MyBaseTask import MyBaseTask
 from src.tasks.BaseOmjTask import BaseOmjTask
 
 

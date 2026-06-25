@@ -12,8 +12,6 @@ class BaseOmjTask(BaseTask):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "基本设置"
-        self.description = "切换御魂 判断是否在主页"
 
     # ---- 自动代理：self.xxx → og.my_app.xxx ----
     _GLOBAL_ATTRS = {"logged_in", "state"}
@@ -55,7 +53,22 @@ class BaseOmjTask(BaseTask):
             return True
         return False
        
-
+    def findone_and_click(self):
+        pass
+    def ocr_and_click(self, match, sleep: float = 0.5, box=None) -> bool:
+        """OCR 指定区域按优先级模糊匹配文字并点击。返回 True/False。
+        match: str 或 list[str]，内部自动转正则（包含即匹配）。
+        """
+        import re
+        if isinstance(match, str):
+            match = [match]
+        for m in match:
+            results = self.wait_ocr(match=re.compile(m), box=box, threshold=0.7)
+            if results:
+                self.click_box(results[0], after_sleep=sleep)
+                self.log_info(f"OCR '{m}' -> '{results[0].name}' 并点击")
+                return True
+        return False
     def Find_And_Click_Home(self, text: str) -> bool:
         """OCR 底部区域 (0, 0.8 ~ 1, 1)，匹配到 text 则点击。"""
         results = self.ocr(0, 0.8, 1, 1, match=text)

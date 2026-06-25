@@ -17,7 +17,7 @@ task.feature_set = ok_test.feature_set
 task.after_init(executor=ok_test.task_executor, scene=ok_test.task_executor.scene)
 
 # ---- 设置测试图片 ----
-IMAGE = "tests/img/home/123.png"
+IMAGE = "tests\img\events/battlefinish.png"
 ok_test.device_manager.capture_method.set_images([IMAGE])
 frame = task.next_frame()
 h, w = frame.shape[:2]
@@ -28,6 +28,7 @@ searches = [
     ("Cancel_Old",                   task.box_of_screen(0.65, 0.1, 0.75, 0.20)),
     ("Home_Store",                  task.box_of_screen(0,0,1,1)),
     ("Home_Town",   task.box_of_screen(0,0,1,1)),
+    ("Battle_Finish",   task.box_of_screen(0.39,0.67,0.61,0.86)),
 ]
 
 colors = [(255, 0, 0), (255, 255, 0), (0, 255, 255)]  # 蓝/黄/青 区分各搜索区域
