@@ -95,6 +95,12 @@
             "file_name": "images/3.png",
             "width": 2560,
             "height": 1440
+        },
+        {
+            "id": 21,
+            "file_name": "images/0.png",
+            "width": 2560,
+            "height": 1440
         }
     ],
     "annotations": [
@@ -526,6 +532,19 @@
             ],
             "area": 33659,
             "iscrowd": 0
+        },
+        {
+            "id": 34,
+            "image_id": 21,
+            "category_id": 34,
+            "bbox": [
+                1171,
+                1053,
+                202,
+                125
+            ],
+            "area": 25250,
+            "iscrowd": 0
         }
     ],
     "categories": [
@@ -656,7 +675,7 @@
         },
         {
             "id": 26,
-            "name": "Daily_Sign_Success",
+            "name": "Daliy_Sign_Success",
             "supercategory": ""
         },
         {
@@ -692,6 +711,11 @@
         {
             "id": 33,
             "name": "Home_Shikigami_Detece_Name",
+            "supercategory": ""
+        },
+        {
+            "id": 34,
+            "name": "Battle_Finish",
             "supercategory": ""
         }
     ]
