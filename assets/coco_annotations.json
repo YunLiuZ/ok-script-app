@@ -101,6 +101,18 @@
             "file_name": "images/0.png",
             "width": 2560,
             "height": 1440
+        },
+        {
+            "id": 22,
+            "file_name": "images/0.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 23,
+            "file_name": "images/0.png",
+            "width": 2560,
+            "height": 1440
         }
     ],
     "annotations": [
@@ -545,6 +557,32 @@
             ],
             "area": 25250,
             "iscrowd": 0
+        },
+        {
+            "id": 35,
+            "image_id": 22,
+            "category_id": 35,
+            "bbox": [
+                2466,
+                1092,
+                54,
+                54
+            ],
+            "area": 2916,
+            "iscrowd": 0
+        },
+        {
+            "id": 36,
+            "image_id": 23,
+            "category_id": 36,
+            "bbox": [
+                852,
+                285,
+                223,
+                200
+            ],
+            "area": 44600,
+            "iscrowd": 0
         }
     ],
     "categories": [
@@ -675,7 +713,7 @@
         },
         {
             "id": 26,
-            "name": "Daliy_Sign_Success",
+            "name": "Daily_Sign_Success",
             "supercategory": ""
         },
         {
@@ -716,6 +754,16 @@
         {
             "id": 34,
             "name": "Battle_Finish",
+            "supercategory": ""
+        },
+        {
+            "id": 35,
+            "name": "Event_Change",
+            "supercategory": ""
+        },
+        {
+            "id": 36,
+            "name": "Battle_Success",
             "supercategory": ""
         }
     ]
