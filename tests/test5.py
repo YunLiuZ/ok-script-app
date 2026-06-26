@@ -17,7 +17,7 @@ task.feature_set = ok_test.feature_set
 task.after_init(executor=ok_test.task_executor, scene=ok_test.task_executor.scene)
 
 # ---- 设置测试图片 ----
-IMAGE = "tests\img\events/2.png"
+IMAGE = "tests\img/boss4.png"
 ok_test.device_manager.capture_method.set_images([IMAGE])
 frame = task.next_frame()
 h, w = frame.shape[:2]
@@ -26,8 +26,8 @@ h, w = frame.shape[:2]
 # 改 x,y,to_x,to_y 或 match 即可，区域框会自动跟着变
 ocr_configs = [
     # (OCR区域 x,y,to_x,to_y,  匹配文本/正则,  框颜色)
-    (0.0, 0.0, 1, 1,           None,            (255, 0, 0)),  
-    (0.18,0.41,0.25,0.64 ,['鸣','鼓','战斗'],(255, 0, 0))
+    # (0.0, 0.0, 1, 1,           None,            (255, 0, 0)),  
+    (0.55,0.13,0.81,0.43 ,None,(255, 0, 0))
 ]
 
 for x, y, to_x, to_y, match, color in ocr_configs:

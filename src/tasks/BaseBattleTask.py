@@ -15,7 +15,7 @@ class BaseBattleTask(BaseOmjTask):
             "Preset Team": "1",
             "Group Name": "",
             "Team Name": "",
-            "AttackNumber":"10",
+            "AttackNumber":10,
         })
 
         self.config_description.update({
