@@ -118,6 +118,15 @@ class BaseOmjTask(BaseTask):
         self.click_relative(x, y, after_sleep=1)
         print(x,y)
         self.log_info(f"选择第 {n} 个{label}")
+    def _swipe(self,x:float,y:float,to_x:float,to_y:float,duration:float):
+        h, w = self.frame.shape[:2]
+        self.swipe(
+            int(x * w), int(y * h),  # 起点像素
+            int(to_x * w), int(to_y * h),  # 终点像素
+            duration=duration,
+        )
+        
+        self.log_info('滑动完成')
 
     def Back_Home(self):
         self.log_info('进入backhome')
@@ -159,3 +168,5 @@ class BaseOmjTask(BaseTask):
             post_action=try_back,
             raise_if_not_found=False
         )
+    
+    
