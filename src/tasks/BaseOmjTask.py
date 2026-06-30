@@ -132,8 +132,7 @@ class BaseOmjTask(BaseTask):
         self.log_info('进入backhome')
         if self.In_Home():
             return True
-        def try_back():
-            if home_button:= self.find_one(
+        if home_button:= self.find_one(
                 'Home_Button',
                 box=self.B('Home_Button'),
                 threshold=0.8
@@ -141,7 +140,29 @@ class BaseOmjTask(BaseTask):
                 self.click(home_button, after_sleep=1)
                 self.log_info('点击Home_Button')
                 if self.In_Home():
+                    return 
+        self.sleep(0.5)
+        if back_button:= self.find_one(
+                'Back',
+                box=self.B('Back'),
+                threshold=0.8
+            ):
+                self.click(back_button, after_sleep=3)
+                self.log_info('点击Back')
+                if self.In_Home():
                     return
+        self.sleep(0.5)
+        if home_button:= self.find_one(
+                'Home_Button',
+                box=self.B('Home_Button'),
+                threshold=0.8
+            ):
+                self.click(home_button, after_sleep=1)
+                self.log_info('点击Home_Button')
+                if self.In_Home():
+                    return 
+        self.sleep(0.5)
+        def try_back():
             if Back1 := self.find_one('Daily_New_Cancel',box=self.box_of_screen(0.5,0,1,0.5),threshold=0.8):
                 self.click(Back1, after_sleep=0.5)
                 self.log_info('关闭了某个窗口')
@@ -160,6 +181,15 @@ class BaseOmjTask(BaseTask):
             ):
                 self.click(back_button, after_sleep=3)
                 self.log_info('点击Back')
+                if self.In_Home():
+                    return
+            if home_button:= self.find_one(
+                'Home_Button',
+                box=self.B('Home_Button'),
+                threshold=0.8
+            ):
+                self.click(home_button, after_sleep=1)
+                self.log_info('点击Home_Button')
                 if self.In_Home():
                     return
         return self.wait_until(

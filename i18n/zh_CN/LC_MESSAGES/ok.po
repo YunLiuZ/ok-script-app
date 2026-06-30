@@ -392,6 +392,10 @@ msgid "Daily Task"
 msgstr "日常任务"
 
 #. Qt context: FluTreeView, TaskList
+msgid "DailyTask"
+msgstr "一条龙"
+
+#. Qt context: FluTreeView, TaskList
 msgid "AreaBoss"
 msgstr "地狱鬼王"
 
@@ -434,6 +438,7 @@ msgstr "日轮之城"
 #. Qt context: FluTreeView, TaskList
 msgid "EternitySea"
 msgstr "永生之海"
+
 
 #. Qt context: FluTreeView, TaskList
 msgid "GlobalGame"
@@ -1906,3 +1911,5 @@ msgstr "石距加成"
 # ==============================================================================
 # ===== END: merged from i18n_omj.zip =====
 # ==============================================================================
+msgid "BattleTime"
+msgstr "预计战斗用时"

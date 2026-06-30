@@ -17,7 +17,7 @@ task.feature_set = ok_test.feature_set
 task.after_init(executor=ok_test.task_executor, scene=ok_test.task_executor.scene)
 
 # ---- 设置测试图片 ----
-IMAGE = "tests\img\switchsoul/2.png"
+IMAGE = "tests\img\soulbattle/1.png"
 ok_test.device_manager.capture_method.set_images([IMAGE])
 frame = task.next_frame()
 h, w = frame.shape[:2]
@@ -27,7 +27,7 @@ h, w = frame.shape[:2]
 ocr_configs = [
     # (OCR区域 x,y,to_x,to_y,  匹配文本/正则,  框颜色)
     # (0.0, 0.0, 1, 1,           None,            (255, 0, 0)),  
-    (0.32,0.42,0.48,0.69 ,None,(255, 0, 0))
+    (0.51,0.53,0.67,0.63 ,None,(255, 0, 0))
 ]
 
 for x, y, to_x, to_y, match, color in ocr_configs:

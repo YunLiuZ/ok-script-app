@@ -9,10 +9,14 @@ class AreaBossTask(BaseBattleTask):
         self.count = 1
 
     def run(self):
-        self.Back_Home()
-        # self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
-        # self.AreaBoss_page()
-        # self.Battle()
+        if self.config["Preset Enable"]:
+            self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
+        if self.AreaBoss_page():
+            self.Battle()
+            self.sleep(1)     
+            self.Back_Home() 
+        else:
+            self.log_warning("找不到鬼王页面")
 
     def AreaBoss_page(self):
         # self.In_Home()
@@ -25,11 +29,15 @@ class AreaBossTask(BaseBattleTask):
 
         if text:=self.ocr_and_click(['地域','鬼王'],1,box=self.box_of_screen(0.48,0.94,0.55,0.98)):
             print(text)
+            return True
+        else:
+            return False
         
 
     def Battle(self):
         self.log_info("进入battle")
         self.count = 1
+
         
         while(self.count <= self.config["AttackNumber"]):
             
@@ -38,10 +46,18 @@ class AreaBossTask(BaseBattleTask):
             if text:=self.ocr_and_click(['收','藏'],0.5,box=self.B('Areaboss_Filter_Page')):
                 print(text)
             
-            group_rows = {1: 0.36, 2: 0.58}
+            group_rows = {1: 0.36, 2: 0.58,3:0.78}
             self.click_nth('x', 0.86, group_rows,self.trigger_count ,self.count)
+            if lock_res := self.Lock_team((0.86,0.88,0.90,0.95)):
+                self.log_info("锁上了")
+            else:
+                self.log_info("没锁")
+             
+
             if text:=self.ocr_and_click(['挑战'],0.5,box=self.box_of_screen(0.86,0.73,0.93,0.79)):
                 print(text)
+            if not lock_res:
+                pass
 
             if not self.wait_click_feature('Battle_Success', threshold=0.7,
                                     box=self.B('Battle_Success'),
@@ -60,8 +76,7 @@ class AreaBossTask(BaseBattleTask):
             self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
             self.count+=1
             self.trigger_count+=1
-        self.sleep(1)     
-        self.Back_Home()             
+                    
     def Battle_process(self):
         pass
 

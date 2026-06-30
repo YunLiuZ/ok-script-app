@@ -9,13 +9,14 @@ class BaseBattleTask(BaseOmjTask):
 
         self.default_config.update({
 
-            "Lock Team Enable": False,
+            "Lock Team Enable": True,
             "Preset Enable": False,
             "Preset Group": "1",
             "Preset Team": "1",
             "Group Name": "",
             "Team Name": "",
             "AttackNumber":10,
+            "BattleTime": 30
         })
 
         self.config_description.update({
@@ -72,6 +73,21 @@ class BaseBattleTask(BaseOmjTask):
         
             self.log_info('回家')
         self.in_home_and_back()
+    def Lock_team(self,confirm_box:tuple):
+        if res := self.find_feature("Lock_Team",threshold=0.8,box=self.box_of_screen(*confirm_box)) :
+            if self.config["Lock Team Enable"]:
+                self.click(res[0]) #锁上了
+                return True
+            else :
+                return False #解锁
+        else:
+            if self.config["Lock Team Enable"]:
+                return True #锁上了
+            else:
+                self.click(res[0]) #解锁了
+                return False
+                
+
 
 
 

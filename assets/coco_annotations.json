@@ -113,6 +113,36 @@
             "file_name": "images/0.png",
             "width": 2560,
             "height": 1440
+        },
+        {
+            "id": 24,
+            "file_name": "images/0.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 25,
+            "file_name": "images/0.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 27,
+            "file_name": "images/1.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 28,
+            "file_name": "images/1.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 29,
+            "file_name": "images/0.png",
+            "width": 2560,
+            "height": 1440
         }
     ],
     "annotations": [
@@ -444,10 +474,10 @@
         {
             "id": 26,
             "image_id": 7,
-            "category_id": 26,
+            "category_id": 37,
             "bbox": [
                 551,
-                42,
+                40,
                 489,
                 138
             ],
@@ -583,6 +613,71 @@
             ],
             "area": 44600,
             "iscrowd": 0
+        },
+        {
+            "id": 37,
+            "image_id": 24,
+            "category_id": 26,
+            "bbox": [
+                239,
+                475,
+                93,
+                78
+            ],
+            "area": 7254,
+            "iscrowd": 0
+        },
+        {
+            "id": 38,
+            "image_id": 25,
+            "category_id": 38,
+            "bbox": [
+                1076,
+                672,
+                99,
+                99
+            ],
+            "area": 9801,
+            "iscrowd": 0
+        },
+        {
+            "id": 39,
+            "image_id": 27,
+            "category_id": 39,
+            "bbox": [
+                407,
+                450,
+                136,
+                124
+            ],
+            "area": 16864,
+            "iscrowd": 0
+        },
+        {
+            "id": 40,
+            "image_id": 28,
+            "category_id": 40,
+            "bbox": [
+                1123,
+                680,
+                108,
+                108
+            ],
+            "area": 11664,
+            "iscrowd": 0
+        },
+        {
+            "id": 41,
+            "image_id": 29,
+            "category_id": 41,
+            "bbox": [
+                66,
+                1299,
+                37,
+                47
+            ],
+            "area": 1739,
+            "iscrowd": 0
         }
     ],
     "categories": [
@@ -713,7 +808,7 @@
         },
         {
             "id": 26,
-            "name": "Daily_Sign_Success",
+            "name": "Invitation_Confirm",
             "supercategory": ""
         },
         {
@@ -764,6 +859,31 @@
         {
             "id": 36,
             "name": "Battle_Success",
+            "supercategory": ""
+        },
+        {
+            "id": 37,
+            "name": "Daily_Sign_Success",
+            "supercategory": ""
+        },
+        {
+            "id": 38,
+            "name": "Leader_Invitation",
+            "supercategory": ""
+        },
+        {
+            "id": 39,
+            "name": "Member_Confirm",
+            "supercategory": ""
+        },
+        {
+            "id": 40,
+            "name": "Member_Confirm_No",
+            "supercategory": ""
+        },
+        {
+            "id": 41,
+            "name": "Lock_Team",
             "supercategory": ""
         }
     ]

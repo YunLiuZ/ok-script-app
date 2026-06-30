@@ -5,8 +5,10 @@ class DailyTask(BaseOmjTask):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "每日签到"
-        self.description = "签到加黑碎"
+        self.name = "每日签到！"
+        self.description = "签到，黑蛋"
+
+        
 
     def run(self):
         if self.state.is_done_today("daily_sign"):
@@ -50,16 +52,16 @@ class DailyTask(BaseOmjTask):
         self.info_set("步骤", "已点击一键完成")
 
         # 结界式神经验满
-        if texts := self.ocr(box=self.B('ocr_confirm_dialog'), match='确认'):
+        if texts := self.wait_ocr(match='确认',box=self.B('ocr_confirm_dialog'),raise_if_not_found=True,threshold=0.8,time_out=1):
             self.click_box(texts[0], after_sleep=2)
-            self.info_set("步骤", "点击 确认")
+            self.info_set("步骤", "点击 确认")  
         else:
             self.info_set("确认弹窗", "无")
 
         # 3. 五日签到
         if not self.wait_click_feature('Battle_Finish', threshold=0.7,
                                         box=self.box_of_screen(0.3,0.3,0.8,0.8),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=2, after_sleep=1):
             self.log_warning("没有五日")
 
         # 每日签到的弹窗

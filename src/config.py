@@ -116,7 +116,7 @@ config = {
         ["src.tasks.SoulZonesTask", "SoulZonesTask"],
         ["src.tasks.AreaBossTask", "AreaBossTask"],
         ["src.tasks.GameEventsBattleTask", "GameEventsBattleTask"],
-        
+        ["src.tasks.TaskScheduler", "TaskScheduler"],
         ["ok", "DiagnosisTask"],
     ],
 }
