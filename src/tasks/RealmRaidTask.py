@@ -17,6 +17,7 @@ class RealmRaidTask(BaseBattleTask):
             "AttackNumber":"对于结界突破无需填写",
         })
     def run(self):
+        self.in_home_and_back()
         if self.config["Preset Enable"]:
             self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
         if self.RealmRaid_page():

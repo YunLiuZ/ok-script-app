@@ -12,6 +12,8 @@ class BaseOmjTask(BaseTask):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.rows = {1: 0.09, 2: 0.18, 3: 0.27, 4: 0.35, 5: 0.42, 6: 0.53, 7: 0.62,8: 0.71, 9: 0.80, 10: 0.88}#0.89
+
 
     # ---- 自动代理：self.xxx → og.my_app.xxx ----
     _GLOBAL_ATTRS = {"logged_in", "state"}
@@ -30,12 +32,13 @@ class BaseOmjTask(BaseTask):
             super().__setattr__(name, value)
 #region Home
     def in_home_and_back(self):
-        if  self.In_Home():
+        if self.In_Home():
             self.log_info("在主页")
         else:
             self.log_info("不在主页")
             self.Back_Home()
-        
+        return True
+
     def In_Home(self):
         self.log_info("寻找町中")
         town = self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'))
@@ -129,7 +132,7 @@ class BaseOmjTask(BaseTask):
 #endregion     
     
     
-    def ocr_and_click(self, match, sleep: float = 0.5,time_out :float =3, box=None, random_click: bool = False) -> bool:
+    def ocr_and_click(self, match, sleep: float = 0.5,time_out :float =3, box=None, random_click: bool = False,raise_if_not_found=True) -> bool:
         """OCR 指定区域按优先级模糊匹配文字并点击。返回 True/False。
         match: str 或 list[str]，内部自动转正则（包含即匹配）。
         random_click=True 时在识别区域内随机选点点击。
@@ -138,7 +141,7 @@ class BaseOmjTask(BaseTask):
         if isinstance(match, str):
             match = [match]
         for m in match:
-            results = self.wait_ocr(match=re.compile(m), box=box, threshold=0.7,time_out=time_out)
+            results = self.wait_ocr(match=re.compile(m), box=box, threshold=0.7,time_out=time_out,raise_if_not_found=raise_if_not_found)
             if results:
                 r = results[0]
                 if random_click:

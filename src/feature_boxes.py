@@ -82,6 +82,10 @@ BOX = {
     "Invitation_Confirm": (0.08,0.31,0.13,0.40),
     "Member_Confirm": (0.14,0.28,0.22,0.40),
     "Battle_Failure":(0.25,0.09,0.49,0.43),
+
+
+
+    "Delegation": (0.76, 0.18, 0.99, 0.92),
     
 }
 

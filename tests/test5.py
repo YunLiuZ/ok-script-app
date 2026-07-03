@@ -17,7 +17,7 @@ task.feature_set = ok_test.feature_set
 task.after_init(executor=ok_test.task_executor, scene=ok_test.task_executor.scene)
 
 # ---- 设置测试图片 ----
-IMAGE = "tests\img\explore/6.png"
+IMAGE = "tests\img/test/2.png"
 ok_test.device_manager.capture_method.set_images([IMAGE])
 frame = task.next_frame()
 h, w = frame.shape[:2]
@@ -27,7 +27,7 @@ h, w = frame.shape[:2]
 ocr_configs = [
     # (OCR区域 x,y,to_x,to_y,  匹配文本/正则,  框颜色)
     # (0.0, 0.0, 1, 1,           None,            (255, 0, 0)),  
-    (0.78, 0.87, 0.87, 0.95 ,None,(255, 0, 0))
+    (0.83, 0.00, 1, 0.1 ,None,(255, 0, 0))
 ]
 
 for x, y, to_x, to_y, match, color in ocr_configs:

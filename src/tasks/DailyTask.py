@@ -2,11 +2,12 @@ from src.tasks.BaseOmjTask import BaseOmjTask
 
 
 class DailyTask(BaseOmjTask):
-
+   
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "每日签到！"
         self.description = "签到，黑蛋"
+       
         self.default_config.update({
             "Orchids": True,
             "Friend 1": "",
@@ -19,7 +20,8 @@ class DailyTask(BaseOmjTask):
         
 
     def run(self):
-
+        if self.config["Orchids"]:
+            self.Orchids()
         if self.state.is_done_today("daily_sign"):
             self.log_info(f"今日已签到 ({self.state.done_at('daily_sign')})，跳过")
         else:
@@ -29,8 +31,7 @@ class DailyTask(BaseOmjTask):
             self.log_info(f"礼包屋今日已签到 ({self.state.done_at('gift_shop')})，跳过")
         else:
             self.Gift_Shop_Sign()
-        if self.config["Orchids"]:
-            pass
+        
             
 
     def Sign(self):
@@ -149,9 +150,10 @@ class DailyTask(BaseOmjTask):
 
     def Orchids(self):
         self.in_home_and_back()
-        if not (text:=self.ocr_and_click(['好友'],1,box=self.box_of_screen (0.67, 0.82, 0.74, 0.95))):
-            print(text)
-            self.log_info('找不到好友页面')
+        self.click_nth('y', 0.89, self.rows, 8, "预设组")
+        # if not (text:=self.ocr_and_click(['好友'],1,box=self.box_of_screen (0.67, 0.82, 0.74, 0.95))):
+        #     print(text)
+        #     self.log_info('找不到好友页面')
         if not (text:=self.ocr_and_click(['最近'],1,box=self.box_of_screen (0.20, 0.13, 0.27, 0.19))):
             print(text)
             self.log_info('找不到最近页面')

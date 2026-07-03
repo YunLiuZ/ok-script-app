@@ -28,7 +28,7 @@ temp_point = None    # 鼠标当前位置
 
 def to_relative(x, y):
     """转换为相对坐标 (x/2560, y/1440)"""
-    return round(x / BASE_WIDTH, 4), round(y / BASE_HEIGHT, 4)
+    return round(x / BASE_WIDTH, 2), round(y / BASE_HEIGHT, 2)
 
 
 def format_output():
