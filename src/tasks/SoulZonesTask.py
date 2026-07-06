@@ -55,7 +55,7 @@ class SoulZonesTask(BaseBattleTask):
             self.log_info("等待邀请")
             if  self.wait_click_feature('Invitation_Confirm', threshold=0.7,
                                     box=self.B('Invitation_Confirm'),
-                                    raise_if_not_found=False, time_out=120, after_sleep=1):
+                                    raise_if_not_found=False, time_out=300, after_sleep=1):
                 self.Member_battle()
                 
             else: 

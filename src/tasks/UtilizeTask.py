@@ -6,7 +6,7 @@ class UtilizeTask(BaseOmjTask):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "Utilize"
+        self.name = "结界"
 
         self.default_config.update({
             "Utilize": True,

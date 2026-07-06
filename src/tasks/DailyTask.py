@@ -52,19 +52,17 @@ class DailyTask(BaseOmjTask):
         self.click_relative(0.92, 0.22, after_sleep=1)
 
         # 3. 点击一键完成
-        if not self.wait_click_feature('Sign_Button', threshold=0.7,
+        if  self.wait_click_feature('Sign_Button', threshold=0.7,
                                         box=self.B('Sign_Button'),
-                                        raise_if_not_found=False, time_out=5, after_sleep=1):
-            if texts := self.ocr(box=self.B('ocr_sign_button'), match='完成'):
-                self.click_box(texts[0], after_sleep=2)
-                self.info_set("步骤", "找不到一键完成")
-                self.click_relative(0.9, 0.9, after_sleep=2)
-            self.log_warning("找不到一键完成 Sign_Button")
-        self.info_set("步骤", "已点击一键完成")
+                                        raise_if_not_found=False, time_out=5):
+            self.info_set("步骤", "已点击一键完成")
+            self.sleep(4)
+        else: 
+            self.info_set("步骤", "没有一键完成")
 
         # 结界式神经验满
         if texts := self.wait_ocr(match='确认',box=self.B('ocr_confirm_dialog'),raise_if_not_found=False,threshold=0.8,time_out=1):
-            self.click_box(texts[0], after_sleep=2)
+            self.click_box(texts[0], after_sleep=4)
             self.info_set("步骤", "点击 确认")  
         else:
             self.info_set("确认弹窗", "无")
@@ -72,13 +70,13 @@ class DailyTask(BaseOmjTask):
         # 3. 五日签到
         if not self.wait_click_feature('Battle_Finish', threshold=0.7,
                                         box=self.box_of_screen(0.3,0.3,0.8,0.8),
-                                        raise_if_not_found=False, time_out=2, after_sleep=1):
+                                        raise_if_not_found=False, time_out=2, after_sleep=3):
             self.log_warning("没有五日")
 
         # 每日签到的弹窗
         if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
                                         box=self.box_of_screen(0.64, 0.09, 0.75, 0.21),
-                                        raise_if_not_found=False, time_out=3,after_sleep=1):
+                                        raise_if_not_found=False, time_out=3,after_sleep=2):
             self.log_warning("找不到一键完成每日签到关闭")
 
         if not self.wait_click_feature('Sign_Daily_Skip', threshold=0.7,
@@ -134,12 +132,14 @@ class DailyTask(BaseOmjTask):
             self.log_info("找不到Gift_Daily")
         if not self.wait_click_feature('Gift_Daily_Finish', threshold=0.7,
                                         box=self.B('Gift_Daily_Finish'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=3, after_sleep=2):
             self.log_info("找不到Gift_Daily_Finish")
 
-        if self.ocr_and_click(['获得','奖励'],box=self.box_of_screen(0.35,0.24,0.65,0.37)):
+        if self.ocr_and_click(['获得','奖励'],box=self.box_of_screen(0.35,0.24,0.65,0.37), raise_if_not_found=False):
+            self.log_info("找到获得奖励")
             self.sleep(0.5)
-            self.click(0,0,0.2,0.2,after_sleep=0.5)
+            self.click_relative(0.2,0.2,after_sleep=0.5)
+        else: self.log_info("找不到奖励")
 
         self.wait_click_feature('Home_Button', threshold=0.7,
                                 box=self.B('Home_Button'),

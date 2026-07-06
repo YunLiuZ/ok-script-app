@@ -4,7 +4,7 @@ from src.tasks.BaseBattleTask import BaseBattleTask
 class RealmRaidTask(BaseBattleTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "RealmRaid"
+        self.name = "个人突破"
         self.trigger_count = 1
         self.count = 1
         self.tickets = 0
@@ -126,7 +126,7 @@ class RealmRaidTask(BaseBattleTask):
                     if  self.wait_click_feature('Battle_Back', threshold=0.7,
                                     box=self.box_of_screen(0,0,0.2,0.2),
                                     raise_if_not_found=False, time_out=5, after_sleep=0.5):
-                        if texts := self.wait_ocr(match='确认',box=self.box_of_screen(0.54,0.55,0.62,0.59),raise_if_not_found=True,threshold=0.8,time_out=1):
+                        if texts := self.wait_ocr(match='确认',box=self.box_of_screen(0.54,0.55,0.62,0.59),threshold=0.8,time_out=1):
                             self.click_box(texts[0], after_sleep=1)
                             self.info_set("步骤", "点击 确认")
 

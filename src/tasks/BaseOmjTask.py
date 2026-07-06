@@ -132,7 +132,7 @@ class BaseOmjTask(BaseTask):
 #endregion     
     
     
-    def ocr_and_click(self, match, sleep: float = 0.5,time_out :float =3, box=None, random_click: bool = False,raise_if_not_found=True) -> bool:
+    def ocr_and_click(self, match, sleep: float = 0.5,time_out :float =3, box=None, random_click: bool = False,raise_if_not_found=False) -> bool:
         """OCR 指定区域按优先级模糊匹配文字并点击。返回 True/False。
         match: str 或 list[str]，内部自动转正则（包含即匹配）。
         random_click=True 时在识别区域内随机选点点击。
