@@ -1279,12 +1279,12 @@
         },
         {
             "id": 49,
-            "name": "Exploration_Not_Ratation",
+            "name": "Exploration_Not_Rotation",
             "supercategory": ""
         },
         {
             "id": 50,
-            "name": "Exploration_Roration",
+            "name": "Exploration_Rotation",
             "supercategory": ""
         },
         {
@@ -1304,7 +1304,7 @@
         },
         {
             "id": 54,
-            "name": "Exp,loration_Final_Battle",
+            "name": "Exploration_Final_Battle",
             "supercategory": ""
         },
         {
@@ -1340,7 +1340,7 @@
         {
             "id": 61,
             "name": "Shop_Kaiko_6",
-            "supercategory": ""
+            "supercategory": "" 
         }
     ]
 }

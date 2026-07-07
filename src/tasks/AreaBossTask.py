@@ -49,7 +49,7 @@ class AreaBossTask(BaseBattleTask):
             
             group_rows = {1: 0.36, 2: 0.58,3:0.78}
             self.click_nth('x', 0.86, group_rows,self.trigger_count ,self.count)
-            if lock_res := self.Lock_team((0.86,0.88,0.90,0.95)):
+            if lock_res := self.Lock_team((0.86,0.88,1,1)):
                 self.log_info("锁上了")
             else:
                 self.log_info("没锁")

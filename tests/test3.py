@@ -25,10 +25,12 @@ h, w = frame.shape[:2]
 # ---- 配置：一行定义 特征名 + 搜索区域，代码自动画框+查找 ----
 # 修改 box= 参数即可，蓝色区域会自动跟着变
 searches = [
-    ("Home_Button",                   task.box_of_screen(0, 0, 0.15, 0.1)),
-    ("Back",                  task.box_of_screen(0,0,0.2,0.2)),
-    ("Battle_Finish",   task.box_of_screen(0.26, 0.05, 0.5, 0.29)),
-    ("Daily_New_Cancel",   task.box_of_screen(0.64, 0.09, 0.71, 0.21)),
+    ("Exploration_Battle",                   task.box_of_screen(0.16, 0.22, 1.0, 0.88)),
+    ("Exploration_Final_Battle",                  task.box_of_screen(0.16, 0.22, 1.0, 0.88)),
+    # ("Areaboss_Not_Lock",   task.box_of_screen(0.86,0.88,1,1)),
+    # ("Areaboss_Lock",   task.box_of_screen(0.86,0.88,1,1)),
+    # ("RealmRaid_Not_Lock",   task.box_of_screen(0.86,0.88,1,1)),
+    # ("RealmRaid_Lock",   task.box_of_screen(0.86,0.88,1,1)),
 ]
 
 colors = [(255, 0, 0), (255, 255, 0), (0, 255, 255)]  # 蓝/黄/青 区分各搜索区域
@@ -57,7 +59,7 @@ for i, (name, region) in enumerate(searches):
     else:
         print(f"MISS  {name}")
 
-cv2.imwrite("tests/img/2.png", frame)
+cv2.imwrite("tests/img/i.png", frame)
 print("saved to tests/img/2.png")
 
 destroy_ok()

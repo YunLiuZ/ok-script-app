@@ -105,7 +105,7 @@ class RealmRaidTask(BaseBattleTask):
         
         self.log_info(f"方向={'正' if self.forward else '倒'} lens={lens} tickets={self.tickets} 本轮打{attack_num}次")
         self.count = (lens + 1)
-        if lock_res := self.Lock_team((0.63,0.79,0.67,0.87)):
+        if lock_res := self.Lock_team((0.50,0.70,0.70,0.90),"RealmRaid_Lock","RealmRaid_Not_Lock"):
                 self.log_info("锁上了")
         else:
             self.log_info("没锁")

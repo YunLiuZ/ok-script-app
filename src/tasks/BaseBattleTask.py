@@ -84,6 +84,7 @@ class BaseBattleTask(BaseOmjTask):
                 return True
             else :
                 self.click(res[0]) 
+                self.log_info("解锁")
                 return False 
         elif  res := self.find_feature(notlock,threshold=0.9,box=self.box_of_screen(*confirm_box)) :
             if self.config["Lock Team Enable"]:
