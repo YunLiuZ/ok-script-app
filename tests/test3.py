@@ -17,7 +17,7 @@ task.feature_set = ok_test.feature_set
 task.after_init(executor=ok_test.task_executor, scene=ok_test.task_executor.scene)
 
 # ---- 设置测试图片 ----
-IMAGE = "tests\img\home\signcancel.png"
+IMAGE = "tests\img/2.png"
 ok_test.device_manager.capture_method.set_images([IMAGE])
 frame = task.next_frame()
 h, w = frame.shape[:2]
@@ -27,7 +27,7 @@ h, w = frame.shape[:2]
 searches = [
     ("Home_Button",                   task.box_of_screen(0, 0, 0.15, 0.1)),
     ("Back",                  task.box_of_screen(0,0,0.2,0.2)),
-    ("Battle_Success",   task.box_of_screen(0.2,0,0.5,0.43)),
+    ("Battle_Finish",   task.box_of_screen(0.26, 0.05, 0.5, 0.29)),
     ("Daily_New_Cancel",   task.box_of_screen(0.64, 0.09, 0.71, 0.21)),
 ]
 

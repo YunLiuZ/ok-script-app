@@ -27,7 +27,7 @@ h, w = frame.shape[:2]
 ocr_configs = [
     # (OCR区域 x,y,to_x,to_y,  匹配文本/正则,  框颜色)
     # (0.0, 0.0, 1, 1,           None,            (255, 0, 0)),  
-    (0.3457, 0.5653, 0.5074, 0.6243 ,None,(255, 0, 0))
+    (0.26, 0.05, 0.8, 0.29 ,None,(255, 0, 0))
 ]
 
 for x, y, to_x, to_y, match, color in ocr_configs:

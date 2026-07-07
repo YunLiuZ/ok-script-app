@@ -76,22 +76,22 @@ class BaseBattleTask(BaseOmjTask):
             self.log_info('回家')
         self.in_home_and_back()
 
-    def Lock_team(self,confirm_box:tuple):
-        if res := self.find_feature("Lock_Team",threshold=0.9,box=self.box_of_screen(*confirm_box)) :
-            self.log_info("检查到没上锁")
-            if self.config["Lock Team Enable"]:
-                self.click(res[0]) #锁上了
-                self.log_info("点击上锁")
-                return True
-            else :
-                return False #解锁
-        else:
+    def Lock_team(self,confirm_box:tuple,lock = "Lock",notlock = "Not_Lock"):
+        if res := self.find_feature(lock,threshold=0.9,box=self.box_of_screen(*confirm_box)) :
+            self.log_info("检查到上锁")
             if self.config["Lock Team Enable"]:
                 self.log_info("上锁")
-                return True #锁上了
+                return True
+            else :
+                self.click(res[0]) 
+                return False 
+        elif  res := self.find_feature(notlock,threshold=0.9,box=self.box_of_screen(*confirm_box)) :
+            if self.config["Lock Team Enable"]:
+                self.click(res[0])
+                self.log_info("上锁")
+                return True 
             else:
-                self.log_info("点击解锁")
-                self.click(res[0]) #解锁了
+                self.log_info("解锁")
                 return False
     def Change_team(self):
         self.ocr_and_click("预","设",box=(0,0.87,0.15,1))# (0.8781, 0.7701, 0.9625, 0.8535)

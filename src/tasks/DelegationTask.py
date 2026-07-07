@@ -72,20 +72,21 @@ class DelegationTask(BaseOmjTask):
             else:
                 self.info_set("委派", f"已点击 {translation}")
                 self.Delegation()
+                self._swipe(0.85,0.80,0.85,0.30,0.5)
             
     def Finish_delegation(self):
         self.log_info('检查是否有已完成的委派')
         while (text := self.ocr_and_click(['完成'], 1,
                                         box=self.B("Delegation"), raise_if_not_found=False)):
             print(text)
-            self.wait_until(condition=self.ocr_and_click(['完成'], 1,time_out=2,
+            self.click_relative(0.89, 0.44,after_sleep=1)
+            self.wait_until(condition=lambda: self.ocr_and_click(['完成'], 1,time_out=0.5,
                                             box=self.box_of_screen(0.73, 0.35, 0.93, 0.53)),
-                                            time_out=20,pre_action=self.click_relative(0.47, 0.81,after_sleep=0.5)
+                                            time_out=20,pre_action=lambda: self.click_relative(0.47, 0.81, after_sleep=0.5)
                                             ,raise_if_not_found=False)
                        
-            if not self.wait_click_feature('Battle_Success', threshold=0.7,
-                                    box=self.box_of_screen(0.26, 0.05, 0.5, 0.29),
-                                    raise_if_not_found=False, time_out=3, after_sleep=1):
+            if not self.ocr_and_click(['顺利',"达成"], 1,
+                                        box=self.box_of_screen(0.26, 0.05, 0.8, 0.29), raise_if_not_found=False):
                 self.log_warning("找不到Battle_Success_Soul")
         self.log_info('没有待完成')
 
