@@ -200,10 +200,13 @@ class SoulZonesTask(BaseBattleTask):
                         self.log_warning("找不到Battle_Success_Soul")
 
 
-                    if not self.wait_click_feature('Battle_Finish', threshold=0.7,
-                                            box=self.B('Battle_Finish'),
-                                            raise_if_not_found=False, time_out=5, after_sleep=1):
-                        self.log_warning("找不到Battle_Finish")
+                    if res := self.wait_feature('Battle_Finish', threshold=0.7,
+                                    box=self.B('Battle_Finish'),
+                                    raise_if_not_found=False, time_out=5):
+                        self.sleep(1)
+                        self.click(res,after_sleep=1)
+                    else:
+                        self.log_warning("找不到Battle_Finish 222")
                     if self.count == 1:      
                         if self.wait_ocr("发现宝藏",time_out=1,box=self.box_of_screen(0.36,0.18,0.65,0.33)):
                             self.click_relative(0.1,0.1,after_sleep=1)
@@ -255,10 +258,13 @@ class SoulZonesTask(BaseBattleTask):
                     self.count += 1
                     self.trigger_count += 1
                     continue
-            if not self.wait_click_feature('Battle_Finish', threshold=0.7,
+            if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.B('Battle_Finish'),
-                                    raise_if_not_found=False, time_out=self.config["BattleTime"]+15, after_sleep=1):
-                self.log_warning("找不到Battle_Finish")
+                                    raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+            else:
+                self.log_warning("找不到Battle_Finish 222")
             self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
             self.count+=1
             self.trigger_count+=1
@@ -274,10 +280,13 @@ class SoulZonesTask(BaseBattleTask):
                 self.log_warning("找不到Battle_Success_Soul")
 
 
-            if not self.wait_click_feature('Battle_Finish', threshold=0.7,
+            if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.B('Battle_Finish'),
-                                    raise_if_not_found=False, time_out=5, after_sleep=1):
-                self.log_warning("找不到Battle_Finish")
+                                    raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+            else:
+                self.log_warning("找不到Battle_Finish 222")
             if self.count == 1:      
                 if self.wait_ocr("发现宝藏",time_out=1,box=self.box_of_screen(0.36,0.18,0.65,0.33)):
                     self.click_relative(0.1,0.1,after_sleep=0.5)

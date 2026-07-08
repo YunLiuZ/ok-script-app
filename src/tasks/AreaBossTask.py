@@ -66,10 +66,14 @@ class AreaBossTask(BaseBattleTask):
                 self.log_warning("找不到Battle_Success")
 
             self.click_relative(0.6,0.3,after_sleep=0.5)
-            if not self.wait_click_feature('Battle_Finish', threshold=0.7,
+
+            if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.B('Battle_Finish'),
-                                    raise_if_not_found=False, time_out=5, after_sleep=1):
-                self.log_warning("找不到Battle_Finish")
+                                    raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+            else:
+                self.log_warning("找不到Battle_Finish 222")
             if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
                                     box=self.B('Daily_New_Cancel'),
                                     raise_if_not_found=False, time_out=5, after_sleep=1):

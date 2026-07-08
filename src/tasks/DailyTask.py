@@ -68,9 +68,12 @@ class DailyTask(BaseOmjTask):
             self.info_set("确认弹窗", "无")
 
         # 3. 五日签到
-        if not self.wait_click_feature('Battle_Finish', threshold=0.7,
-                                        box=self.box_of_screen(0.3,0.3,0.8,0.8),
-                                        raise_if_not_found=False, time_out=2, after_sleep=3):
+        if res := self.wait_feature('Battle_Finish', threshold=0.7,
+                                    box=self.box_of_screen(0.3,0.3,0.8,0.8),
+                                    raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+        else:
             self.log_warning("没有五日")
 
         # 每日签到的弹窗

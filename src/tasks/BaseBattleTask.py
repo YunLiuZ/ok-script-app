@@ -57,6 +57,7 @@ class BaseBattleTask(BaseOmjTask):
         self.wait_click_ocr(match='预设',
                             box=self.B('Home_Shikigami_Presets'),time_out=3,after_sleep=1)
         self._swipe(0.91,0.22,0.91,0.77,0.5)
+        self.sleep(0.5)
 
         group_rows = {1: 0.17, 2: 0.27, 3: 0.35, 4: 0.47, 5: 0.56, 6: 0.67, 7: 0.75}
         self.click_nth('x', 0.91, group_rows, group, "预设组")

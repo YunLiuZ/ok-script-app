@@ -36,7 +36,7 @@ class RealmRaidTask(BaseBattleTask):
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
-        if text:=self.ocr_and_click(['结界','突破'],sleep=2,box=self.B("ocr_explore_box")):
+        if text:=self.ocr_and_click(['结界','突破'],sleep=2,box=self.box_of_screen(0.18, 0.86, 0.26, 0.99)):
             print(text)
             if text := self.wait_ocr(threshold=0.8,box=self.box_of_screen(0.89,0.02,0.95,0.1),time_out=2):
                 import re
@@ -156,19 +156,27 @@ class RealmRaidTask(BaseBattleTask):
                                     box=self.B('Battle_Success'),
                                     raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=1.5):
                 self.log_warning("找不到Battle_Success")
-
-            if not self.wait_click_feature('Battle_Finish', threshold=0.7,
+            if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.B('Battle_Finish'),
-                                    raise_if_not_found=False, time_out=5, after_sleep=1):
-                self.log_warning("找不到Battle_Finish")
-            if self.count % 3 == 0:
-                if not self.wait_click_feature('Battle_Finish', threshold=0.7,
+                                    raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+            else:
+                self.log_warning("找不到Battle_Finish 222")
+            if ( self.forward == True and self.count % 3 == 0 ) or (self.forward == False and (self.count+2) % 3 ==0):
+                self.log_info(f"方向={'正' if self.forward else '倒'},第 {self.count} 个挑战 ,出现了勾玉结算)")
+                if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.box_of_screen(0.39,0.57,0.62,0.88),
-                                    raise_if_not_found=False, time_out=5, after_sleep=1):
+                                    raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+                else:
                     self.log_warning("找不到Battle_Finish 222")
             
 
             self.log_info(f"第 {self.count} 个挑战 总共{self.tickets} 第 {self.trigger_count} 次战斗")
+            if self.count == 9:
+                self.forward = (not self.forward)
             self.count = self.count%9 + 1
             self.trigger_count+=1
             attack_num -= 1
