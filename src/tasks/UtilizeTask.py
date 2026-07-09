@@ -57,7 +57,7 @@ class UtilizeTask(BaseOmjTask):
             print(text)
 
         if text := self.ocr_and_click(['太鼓', '斗鱼'],
-                                  box=self.box_of_screen(0.63, 0.36, 0.8, 0.41), time_out=3):
+                                  box=self.box_of_screen(0.63, 0.36, 0.8, 0.41), time_out=2):
             print(text)
             self.log_info("结界卡还在")
             # 从 OCR 结果中提取时间 (HH:MM:SS)

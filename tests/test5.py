@@ -27,7 +27,7 @@ h, w = frame.shape[:2]
 ocr_configs = [
     # (OCR区域 x,y,to_x,to_y,  匹配文本/正则,  框颜色)
     # (0.0, 0.0, 1, 1,           None,            (255, 0, 0)),  
-    (0.26, 0.05, 0.8, 0.29 ,None,(255, 0, 0))
+    (0.34, 0.39, 0.67, 0.66 ,["邀请","确定"],(255, 0, 0))
 ]
 
 for x, y, to_x, to_y, match, color in ocr_configs:
@@ -45,7 +45,8 @@ for x, y, to_x, to_y, match, color in ocr_configs:
 
     print(f"OCR region [{x},{y} ~ {to_x},{to_y}] match={match}: found {len(results)} results")
     for r in results:
-        print(f"  -> text='{r.name}' conf={r.confidence:.3f} pos=({r.x},{r.y})")
+        cx, cy = r.x + r.width // 2, r.y + r.height // 2
+        print(f"  -> text='{r.name}' conf={r.confidence:.3f} xy=({r.x},{r.y}) wh=({r.width},{r.height}) center=({cx},{cy})")
         cv2.rectangle(frame, (r.x, r.y), (r.x + r.width, r.y + r.height), (0, 255, 0), 2)
         cv2.putText(frame, f"'{r.name}' {r.confidence:.2f}", (r.x, r.y - 5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)

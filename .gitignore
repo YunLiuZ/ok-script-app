@@ -66,4 +66,5 @@ pip-delete-this-directory.txt
 autohelper
 working_images/
 i18n/i18n/
+tests/img/
 

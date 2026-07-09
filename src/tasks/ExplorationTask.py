@@ -104,18 +104,21 @@ class ExplorationTask(BaseBattleTask):
         if text := self.wait_ocr(['协战', '队伍'],
                                   box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=3):
             print(text)
-        self._invite_one(self.config["Friend 1"], (0.83, 0.34), (0.2832, 0.1187, 0.527, 0.2076))
+        if self._invite_one(self.config["Friend 1"], (0.83, 0.34), (0.77, 0.14, 0.88, 0.19)):
+            self.click_relative(0.95,0.90,after_sleep=0.5)
+            self.log_info("进入battle")
+            return True
             
            
     def Leader_battle(self):
         self.count = 1
-        
+       
+                    
        
         def battle():
-            if (res := self.wait_feature('Exploration_Battle', threshold=0.7,
+            if (self.wait_click_feature('Exploration_Battle', threshold=0.7,
                                     box=self.box_of_screen(0.16, 0.22, 1.0, 0.88),
-                                    raise_if_not_found=False, time_out=3, after_sleep=2)):
-                self.click(res[0],after_sleep=0.5)
+                                    raise_if_not_found=False, time_out=3,after_sleep=0.5)):
                 self.log_info("进入战斗")
                 if not self.wait_click_feature('Battle_Success', threshold=0.7,
                                     box=self.B('Battle_Success_Soul'),
@@ -129,10 +132,10 @@ class ExplorationTask(BaseBattleTask):
                     self.click(res,after_sleep=1)
                 else:
                     self.log_warning("找不到Battle_Finish 222")
-                
                 self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
                 self.count+=1
                 self.trigger_count+=1
+                self.sleep(2)#等等队友 
             else:
                 self.click_relative(0.87, 0.74,after_sleep=2)
                 self.log_info("移动")
@@ -161,13 +164,14 @@ class ExplorationTask(BaseBattleTask):
                 return True
             else:
                 return False
-        
         while(self.count <= self.config["AttackNumber"]):
             if self.ocr_and_click(self.config["Friend 1"], time_out=20,box=self.box_of_screen (0.77, 0.14, 0.88, 0.19)):
                     self.click_relative(0.95,0.90,after_sleep=0.5)
                     self.log_info("进入battle")
             if  self.wait_ocr(['自动', '轮换'],
                             box=self.box_of_screen(0.09, 0.9, 0.2, 0.97), time_out=10):
+                self.sleep(1)
+                self.click_relative(0.66, 0.85,after_sleep=1)#走一步
                 self.log_info("进入战斗页面")
             if self.count == 1:
                 if self.calculate_color_percentage({"b": (200, 255), "g": (200, 255), "r": (200, 255)}, 
@@ -176,9 +180,11 @@ class ExplorationTask(BaseBattleTask):
                 else:
                     self.click_relative(0.1,0.93,after_sleep=0.5)
                     self.log_info("打开自动轮换")
+            for _ in range(4):
+                battle()
             self.wait_until(
             final_battle,
-            time_out=300,
+            time_out=600,
             pre_action=battle,
             raise_if_not_found=False,
             )
@@ -187,17 +193,14 @@ class ExplorationTask(BaseBattleTask):
                                                 box=self.B('Back'),
                                                 raise_if_not_found=False, time_out=5, after_sleep=1):
                 self.log_warning("找不到Back")
-            self.ocr_and_click("确定",1,box=self.box_of_screen(0.53, 0.5, 0.68, 0.62))
+            self.ocr_and_click("确认",1,box=self.box_of_screen(0.53, 0.5, 0.68, 0.62))
             if self.count <= self.config["AttackNumber"]:
-                if self.ocr_and_click("邀请","继续",box=self.box_of_screen(0.35, 0.37, 0.65, 0.48)):
-                    self.ocr_and_click("确定",box=self.box_of_screen(0.52, 0.53, 0.68, 0.67))
+                if self.ocr_and_click(["邀请","继续"],box=self.box_of_screen(0.34, 0.39, 0.67, 0.66)):
+                    self.ocr_and_click("确定",box=self.box_of_screen(0.34, 0.39, 0.67, 0.66))
                 else:
                     break
         self.ocr_and_click("取消",box=self.box_of_screen(0.33, 0.55, 0.48, 0.66))
         self.Back_Home()
-                    
-                    
-
-            
-
+    def Member_battle(self):
+        pass
         

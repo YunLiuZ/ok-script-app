@@ -67,12 +67,21 @@ class DelegationTask(BaseOmjTask):
         for key, translation in self.DELEGATION_MAP.items():
             if not self.config.get(key, False):
                 continue
-            if not self.ocr_and_click(translation, box=self.B("Delegation")):
+            if not self.ocr_and_click(translation,1, box=self.B("Delegation")):
                 self.log_info(f'找不到委派任务: {translation} ({key})')
             else:
                 self.info_set("委派", f"已点击 {translation}")
-                self.Delegation()
-                self._swipe(0.85,0.80,0.85,0.30,0.5)
+                if self.wait_ocr("召回",box=self.box_of_screen(0.73, 0.35, 0.93, 0.53),threshold=0.8,time_out=2,
+                                 raise_if_not_found=False):  
+                    self.log_info('找到还未完成的任务')                   
+                    if not (text := self.ocr_and_click(['跳过'], 2,
+                                                        box=self.box_of_screen(0.72, 0.54, 0.85, 0.69))):
+                        print(text)
+                        self.log_info('找不到跳过')
+                        continue  
+                else:                                                                  
+                    self.Delegation()
+                    self._swipe(0.85,0.80,0.85,0.30,0.5)
             
     def Finish_delegation(self):
         self.log_info('检查是否有已完成的委派')

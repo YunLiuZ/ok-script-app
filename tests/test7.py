@@ -22,7 +22,8 @@ ok_test.device_manager.capture_method.set_images([IMAGE])
 frame = task.next_frame()
 h, w = frame.shape[:2]
 
-boxes = task.calculate_color_percentage({"b": (200, 255), "g": (200, 255), "r": (200, 255)}, box=task.box_of_screen(0.09, 0.92, 0.11, 0.95))
+# rgb(242,139,43) → BGR(43,139,242) ±20
+boxes = task.calculate_color_percentage({"b": (23, 63), "g": (119, 159), "r": (222, 255)}, box=task.box_of_screen(0.09, 0.92, 0.11, 0.95))
 print("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111")
 print(boxes)
 print("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111")

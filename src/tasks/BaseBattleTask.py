@@ -16,7 +16,7 @@ class BaseBattleTask(BaseOmjTask):
             "Group Name": "",
             "Team Name": "",
             "AttackNumber":10,
-            "BattleTime": 30,
+            "BattleTime": 300,
         })
 
         self.config_description.update({

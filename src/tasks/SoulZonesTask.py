@@ -166,7 +166,7 @@ class SoulZonesTask(BaseBattleTask):
         targets = [self.config["Friend 1"]]
         if self.config["Friend 2"]:
             targets.append(self.config["Friend 2"])
-        lock_res=self.Lock_team((0,0.88,0.06,0.95))
+        lock_res=self.Lock_team((0.07,0.87,0.12,0.97))
     
         self.count = 1
 

@@ -1,10 +1,24 @@
 import os
+import sys
 
 import numpy as np
 from ok import ConfigOption
 
 version = "dev"
 #不需要修改version, Github Action打包会自动修改
+
+
+def _get_instance_id():
+    """从命令行 --instance N 或环境变量 OK_INSTANCE 获取实例编号，默认1。"""
+    for i, arg in enumerate(sys.argv):
+        if arg == '--instance' and i + 1 < len(sys.argv):
+            return int(sys.argv[i + 1])
+    env = os.environ.get("OK_INSTANCE", "")
+    return int(env) if env.isdigit() else 1
+
+
+_instance_id = _get_instance_id()
+_instance_suffix = f"/instance_{_instance_id}" if _instance_id > 1 else ""
 
 key_config_option = ConfigOption('Game Hotkey Config', { #全局配置示例
     'Echo Key': 'q',
@@ -52,7 +66,7 @@ config = {
     'custom_tasks':True, # enable creating and editing custom tasks
     'debug': False,  # Optional, default: False
     'use_gui': True, # 目前只支持True
-    'config_folder': 'configs', #最好不要修改
+    'config_folder': f'configs{_instance_suffix}',  # 多开时自动使用子目录（如 configs/instance_2）
     'global_configs': [key_config_option],
     'screenshot_processor': make_bottom_right_black, # 在截图的时候对frame进行修改, 可选
     'gui_icon': 'icons/icon.png', #窗口图标, 最好不需要修改文件名
@@ -103,7 +117,8 @@ config = {
             }
         },
     'screenshots_folder': "screenshots", #截图存放目录, 每次重新启动会清空目录
-    'gui_title': 'ok-py',  #窗口名
+    'custom_tabs': [['src.ui.MyTab', 'MyTab']],  # 自定义Tab
+    'gui_title': f'ok-Onmyoji #{_instance_id}',  #窗口名
     'template_matching': { # 可选, 如使用OpenCV的模板匹配
         'coco_feature_json': os.path.join('assets', 'coco_annotations.json'), #coco格式标记, 需要png图片, 在debug模式运行后, 会对进行切图仅保留被标记部分以减少图片大小
         'default_horizontal_variance': 0.002, #默认x偏移, 查找不传box的时候, 会根据coco坐标, match偏移box内的
@@ -120,6 +135,8 @@ config = {
         ["src.tasks.AreaBossTask", "AreaBossTask"],
         ["src.tasks.RealmRaidTask", "RealmRaidTask"],
         ["src.tasks.GameEventsBattleTask", "GameEventsBattleTask"],
+        ["src.tasks.UtilizeTask", "UtilizeTask"],
+        
         ["src.tasks.TaskScheduler", "TaskScheduler"],
         ["ok", "DiagnosisTask"],
     ],
