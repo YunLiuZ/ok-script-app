@@ -117,7 +117,7 @@ config = {
             }
         },
     'screenshots_folder': "screenshots", #截图存放目录, 每次重新启动会清空目录
-    'custom_tabs': [['src.ui.MyTab', 'MyTab']],  # 自定义Tab
+    'custom_tabs': [['src.ui.MyTab', 'MyTab'], ['src.ui.ScheduleTab', 'ScheduleTab']],  # 自定义Tab
     'gui_title': f'ok-Onmyoji #{_instance_id}',  #窗口名
     'template_matching': { # 可选, 如使用OpenCV的模板匹配
         'coco_feature_json': os.path.join('assets', 'coco_annotations.json'), #coco格式标记, 需要png图片, 在debug模式运行后, 会对进行切图仅保留被标记部分以减少图片大小
@@ -136,8 +136,11 @@ config = {
         ["src.tasks.RealmRaidTask", "RealmRaidTask"],
         ["src.tasks.GameEventsBattleTask", "GameEventsBattleTask"],
         ["src.tasks.UtilizeTask", "UtilizeTask"],
-        
+
         ["src.tasks.TaskScheduler", "TaskScheduler"],
         ["ok", "DiagnosisTask"],
+    ],
+    'trigger_tasks': [  # 后台自动运行的调度任务
+        ["src.tasks.ScheduleRunner", "ScheduleRunner"],
     ],
 }
