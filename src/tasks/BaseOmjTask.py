@@ -117,7 +117,8 @@ class BaseOmjTask(BaseTask):
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到YinYang_Lodge")
         self.info_set("步骤", "进入YinYang_Lodge")
-        self.wait_click_feature('Home_Button', threshold=0.8, box=self.B('Home_Button'),after_sleep=2)
+        self.wait_click_feature('Home_Button', threshold=0.8, box=self.B('Home_Button'),
+                                after_sleep=2,time_out=5,raise_if_not_found=False)
 
     def in_store(self):
         self.log_info('进入判断')

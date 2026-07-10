@@ -34,13 +34,14 @@ class DelegationTask(BaseOmjTask):
             "Miyoshino Painting": "Miyoshino Painting_help",
             "Strange Trace": "Strange Trace_help",
         })
-    
+
     def run(self):
         if self.in_home_and_back():
             self.Delegation_page()
             self.Finish_delegation()
             self.Delegation_selet()
             self.Back_Home()
+
     def Delegation_page(self):
         """导航到式神委派页面"""
         self.log_info('导航')
@@ -62,45 +63,58 @@ class DelegationTask(BaseOmjTask):
     def Delegation_selet(self):
         """根据用户配置，在委派列表中识别并点击已启用的委派任务。"""
         self.log_info('进入委派任务')
-        self._swipe(0.85,0.80,0.85,0.30,0.5)
+        self._swipe(0.85, 0.80, 0.85, 0.30, 0.5)
 
+        # 一次 OCR 扫描整页，过滤掉根本不在屏幕上的任务
+        visible_texts = set()
+        if results := self.ocr(box=self.B("Delegation")):
+            for r in results:
+                visible_texts.add(r.name)
+
+        # 只循环当前屏幕上存在的已启用任务
+        pending = []
         for key, translation in self.DELEGATION_MAP.items():
             if not self.config.get(key, False):
                 continue
-            if not self.ocr_and_click(translation,1, box=self.B("Delegation")):
+            if translation in visible_texts:
+                pending.append((key, translation))
+        self.log_info(f"检测到 {len(pending)} 个可见任务: {[t for _, t in pending]}")
+
+        for key, translation in pending:
+            if not self.ocr_and_click(translation, 1, box=self.B("Delegation")):
                 self.log_info(f'找不到委派任务: {translation} ({key})')
             else:
                 self.info_set("委派", f"已点击 {translation}")
-                if self.wait_ocr("召回",box=self.box_of_screen(0.73, 0.35, 0.93, 0.53),threshold=0.8,time_out=2,
-                                 raise_if_not_found=False):  
-                    self.log_info('找到还未完成的任务')                   
+                if self.wait_ocr("召回", box=self.box_of_screen(0.73, 0.35, 0.93, 0.53),
+                                 threshold=0.8, time_out=2, raise_if_not_found=False):
+                    self.log_info('找到还未完成的任务')
                     if not (text := self.ocr_and_click(['跳过'], 2,
                                                         box=self.box_of_screen(0.72, 0.54, 0.85, 0.69))):
                         print(text)
                         self.log_info('找不到跳过')
-                        continue  
-                else:                                                                  
+                        continue
+                else:
                     self.Delegation()
-                    self._swipe(0.85,0.80,0.85,0.30,0.5)
-            
+                    self._swipe(0.85, 0.80, 0.85, 0.30, 0.5)
+
     def Finish_delegation(self):
         self.log_info('检查是否有已完成的委派')
         while (text := self.ocr_and_click(['完成'], 1,
                                         box=self.B("Delegation"), raise_if_not_found=False)):
             print(text)
-            self.click_relative(0.89, 0.44,after_sleep=1)
-            self.wait_until(condition=lambda: self.ocr_and_click(['完成'], 1,time_out=0.5,
+            self.click_relative(0.89, 0.44, after_sleep=1)
+            self.wait_until(condition=lambda: self.ocr_and_click(['完成'], 1, time_out=0.5,
                                             box=self.box_of_screen(0.73, 0.35, 0.93, 0.53)),
-                                            time_out=20,pre_action=lambda: self.click_relative(0.47, 0.81, after_sleep=0.5)
-                                            ,raise_if_not_found=False)
-                       
-            if not self.ocr_and_click(['顺利',"达成"], 1,
+                                            time_out=20, pre_action=lambda: self.click_relative(0.47, 0.81, after_sleep=0.5)
+                                            , raise_if_not_found=False)
+
+            if not self.ocr_and_click(['顺利', "达成"], 1,
                                         box=self.box_of_screen(0.26, 0.05, 0.8, 0.29), raise_if_not_found=False):
                 self.log_warning("找不到Battle_Success_Soul")
         self.log_info('没有待完成')
 
     def Delegation(self):
-         
+
         if not (text := self.ocr_and_click(['跳过'], 2,
                                             box=self.box_of_screen(0.49, 0.69, 0.59, 0.79))):
             print(text)

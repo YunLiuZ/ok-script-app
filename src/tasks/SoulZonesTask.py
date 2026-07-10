@@ -276,7 +276,7 @@ class SoulZonesTask(BaseBattleTask):
         while(self.count <= self.config["AttackNumber"]):
             if not self.wait_click_feature('Battle_Success', threshold=0.7,
                                     box=self.B('Battle_Success_Soul'),
-                                    raise_if_not_found=False, time_out=60, after_sleep=1):
+                                    raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=1):
                 self.log_warning("找不到Battle_Success_Soul")
 
 
@@ -299,9 +299,9 @@ class SoulZonesTask(BaseBattleTask):
                                         raise_if_not_found=False, time_out=2, after_sleep=1):
                         if not (self.ocr_and_click('确定',time_out=2,box=self.box_of_screen(0.45,0.45,0.70,0.70))):
                             self.log_warning("找不到确认")       
-                self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
-                self.count+=1
-                self.trigger_count+=1
+            self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
+            self.count+=1
+            self.trigger_count+=1
         self.wait_click_feature("Home_Button",box=self.B("Home_Button"),threshold=0.8,time_out=3,after_sleep=2)
         self.in_home_and_back()
 

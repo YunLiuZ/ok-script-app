@@ -163,7 +163,7 @@ class RealmRaidTask(BaseBattleTask):
                     self.click(res,after_sleep=1)
             else:
                 self.log_warning("找不到Battle_Finish 222")
-            if ( self.forward == True and self.count % 3 == 0 ) or (self.forward == False and (self.count+2) % 3 ==0):
+            if ( self.forward == True and self.count % 3 == 0 ) or (self.forward == False and (self.count) % 3 ==0):
                 self.log_info(f"方向={'正' if self.forward else '倒'},第 {self.count} 个挑战 ,出现了勾玉结算)")
                 if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.box_of_screen(0.39,0.57,0.62,0.88),

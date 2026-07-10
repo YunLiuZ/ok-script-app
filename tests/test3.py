@@ -25,8 +25,11 @@ h, w = frame.shape[:2]
 # ---- 配置：一行定义 特征名 + 搜索区域，代码自动画框+查找 ----
 # 修改 box= 参数即可，蓝色区域会自动跟着变
 searches = [
-    ("Exploration_Battle",                   task.box_of_screen(0.16, 0.22, 1.0, 0.88)),
-    ("Exploration_Final_Battle",                  task.box_of_screen(0.16, 0.22, 1.0, 0.88)),
+    ("Cancel_Old",                   task.box_of_screen(0.89, 0.11, 0.95, 0.21)),
+    ("Douyu_6",                  task.box_of_screen(0.41, 0.26, 0.48, 0.81)),
+    ("Shop_Kaiko_6",                   task.box_of_screen(0.41, 0.26, 0.48, 0.81)),
+    ("Shop_Kaiko",                  task.box_of_screen(0.41, 0.26, 0.48, 0.81)),
+    
     # ("Areaboss_Not_Lock",   task.box_of_screen(0.86,0.88,1,1)),
     # ("Areaboss_Lock",   task.box_of_screen(0.86,0.88,1,1)),
     # ("RealmRaid_Not_Lock",   task.box_of_screen(0.86,0.88,1,1)),

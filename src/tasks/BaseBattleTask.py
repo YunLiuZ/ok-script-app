@@ -13,8 +13,6 @@ class BaseBattleTask(BaseOmjTask):
             "Preset Enable": False,
             "Preset Group": "1",
             "Preset Team": "1",
-            "Group Name": "",
-            "Team Name": "",
             "AttackNumber":10,
             "BattleTime": 300,
         })
@@ -24,12 +22,7 @@ class BaseBattleTask(BaseOmjTask):
             "Preset Enable": "开启后战斗前自动切换到指定的预设队伍。",
             "Preset Group": "预设队伍所在的组编号（1-7），用于 SwitchSoul_by_num。",
             "Preset Team": "该组中的预设队伍编号（1-4），用于 SwitchSoul_by_num。",
-            "BattleTime": "大致的通过时间 一般情况下不用设置 战斗时间超过一分钟 按大概时间加30秒即可"
-        })
-
-        self.config_type.update({
-            # 不指定 type，框架根据 value 类型自动选择控件：
-            # bool → SwitchButton, str → LineEdit, int → SpinBox
+            "BattleTime": "通过时间 一般情况下不用修改"
         })
 
 
