@@ -11,8 +11,7 @@ class BaseBattleTask(BaseOmjTask):
 
             "Lock Team Enable": True,
             "Preset Enable": False,
-            "Preset Group": "1",
-            "Preset Team": "1",
+            "Preset Team": "1,1",
             "AttackNumber":10,
             "BattleTime": 300,
         })
@@ -20,11 +19,19 @@ class BaseBattleTask(BaseOmjTask):
         self.config_description.update({
             "Lock Team Enable": "开启后每次战斗前锁定当前阵容，防止误操作切换队伍。",
             "Preset Enable": "开启后战斗前自动切换到指定的预设队伍。",
-            "Preset Group": "预设队伍所在的组编号（1-7），用于 SwitchSoul_by_num。",
-            "Preset Team": "该组中的预设队伍编号（1-4），用于 SwitchSoul_by_num。",
+            "Preset Team": "预设队伍编号，格式：组,队  例如 1,5 表示第1组第5个队伍。",
             "BattleTime": "通过时间 一般情况下不用修改"
         })
 
+    # ---------- 预设队伍解析 ----------
+
+    def _parse_preset(self):
+        """解析 Preset Team 配置（格式 "组,队" 如 "1,5"），返回 (group, team)。"""
+        val = self.config.get("Preset Team", "1,1")
+        parts = val.split(",")
+        if len(parts) == 2:
+            return int(parts[0].strip()), int(parts[1].strip())
+        return 1, 1
 
     def SwitchSoul_by_name(self):
         self.In_Home()
@@ -90,11 +97,12 @@ class BaseBattleTask(BaseOmjTask):
                 return False
     def Change_team(self):
         self.ocr_and_click("预","设",box=(0,0.87,0.15,1))# (0.8781, 0.7701, 0.9625, 0.8535)
+        group, team = self._parse_preset()
         group_rows = {1: 0.36, 2: 0.45, 3: 0.54, 4: 0.63, 5: 0.72, 6: 0.81, 7: 0.90}
-        self.click_nth('x', 0.76, group_rows, int(self.config["Preset Group"]), "预设组")
+        self.click_nth('x', 0.76, group_rows, group, "预设组")
 
         team_rows = {1: 0.22, 2: 0.44, 3: 0.64, 4: 0.85}
-        self.click_nth('x', 0.77, team_rows, int(self.config["Preset Team"]), "预设队伍")
+        self.click_nth('x', 0.77, team_rows, team, "预设队伍")
 
         self.ocr_and_click("出战",1,box=self.box_of_screen(0.26, 0.88, 0.40, 0.96))
         if not self.ocr_and_click("确定",time_out=2,box=self.box_of_screen(0.45, 0.57, 0.54, 0.62)):

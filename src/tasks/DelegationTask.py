@@ -51,15 +51,19 @@ class DelegationTask(BaseOmjTask):
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
-        if (text := self.ocr_and_click(['式神', '委派'], 1,
-                                            box=self.box_of_screen(0.3293, 0.8708, 0.407, 0.9833))):
-            print(text)
-            self.log_info('找到式神委派')
+        if self.wait_click_feature('Exploration_Delegation', threshold=0.7,
+                                        box=self.B('bottom'),
+                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+            self.log_info("探索 Delegation")
+            self.info_set("步骤", "进入Delegation")
             return True
-        else :
-            self.log_info('找不到式神委派')
-            return False
-
+        else:
+            if text:=self.ocr_and_click(['式神', '委派'],1,box=self.box_of_screen(0.3293, 0.8708, 0.407, 0.9833)):
+                print(text)
+                return True
+            else:
+                self.log_info('找不到式神委派')
+                return False
     def Delegation_selet(self):
         """根据用户配置，在委派列表中识别并点击已启用的委派任务。"""
         self.log_info('进入委派任务')

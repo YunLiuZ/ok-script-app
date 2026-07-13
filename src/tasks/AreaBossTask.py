@@ -11,7 +11,8 @@ class AreaBossTask(BaseBattleTask):
     def run(self):
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
+            group, team = self._parse_preset()
+            self.SwitchSoul_by_num(group, team)
         if self.AreaBoss_page():
             self.Battle()
             self.sleep(1)     
@@ -22,17 +23,24 @@ class AreaBossTask(BaseBattleTask):
     def AreaBoss_page(self):
         # self.In_Home()
 
-        if not self.wait_click_feature('Home_Explore', threshold=0.7,
+        
+        if self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
-
-        if text:=self.ocr_and_click(['地域','鬼王'],1,box=self.box_of_screen(0.48,0.94,0.55,0.98)):
-            print(text)
+        if self.wait_click_feature('Exploration_AreaBoss', threshold=0.7,
+                                        box=self.B('bottom'),
+                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+            self.log_info("探索 AreaBoss")
+            self.info_set("步骤", "进入探索页面")
             return True
         else:
-            return False
+            if text:=self.ocr_and_click(['地域','鬼王'],1,box=self.box_of_screen(0.48,0.94,0.55,0.98)):
+                print(text)
+                return True
+            else:
+                return False
         
 
     def Battle(self):

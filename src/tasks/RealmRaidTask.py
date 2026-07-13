@@ -19,7 +19,8 @@ class RealmRaidTask(BaseBattleTask):
     def run(self):
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
+            group, team = self._parse_preset()
+            self.SwitchSoul_by_num(group, team)
         if self.RealmRaid_page():
             self.Battle()
             self.sleep(1)     
@@ -31,30 +32,36 @@ class RealmRaidTask(BaseBattleTask):
 
         
     def RealmRaid_page(self):
+
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
-        if text:=self.ocr_and_click(['结界','突破'],sleep=2,box=self.box_of_screen(0.18, 0.86, 0.26, 0.99)):
+
+        if self.wait_click_feature('Exploration_RealmRaid', threshold=0.7,
+                                        box=self.B('bottom'),
+                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+            self.log_info("探索 RealmRaid")
+            self.info_set("步骤", "进入RealmRaid")
+        elif text:=self.ocr_and_click(['结界','突破'],1,box=self.box_of_screen(0.18, 0.86, 0.26, 0.99)):
             print(text)
-            if text := self.wait_ocr(threshold=0.8,box=self.box_of_screen(0.89,0.02,0.95,0.1),time_out=2):
-                import re
-                nums = re.findall(r'\d+', text[0].name)
-                self.tickets = int(nums[0]) if nums else 0
-                print(f"票数: {self.tickets}")
-                self.log_info("{self.tickets}")
-                if self.tickets > self.config["Tickets"]:
-                    self.log_info("1123")
-                    return True
-                else: 
-                    
-                    return False
-                    
         else:
-            print("2")
+            self.log_info('找不到突破')
             return False
-    
+        
+        if text := self.wait_ocr(threshold=0.8,box=self.box_of_screen(0.89,0.02,0.95,0.1),time_out=2):
+            import re
+            nums = re.findall(r'\d+', text[0].name)
+            self.tickets = int(nums[0]) if nums else 0
+            print(f"票数: {self.tickets}")
+            self.log_info("{self.tickets}")
+            if self.tickets > self.config["Tickets"]:
+                self.log_info("1123")
+                return True
+            else: 
+                return False
+
         
     def Battle(self):
         self.log_info("进入battle")
@@ -119,20 +126,18 @@ class RealmRaidTask(BaseBattleTask):
             #退四
             if(self.forward and self.count == 9):
                 for i in range(4):
-                    if self.ocr_and_click(["结界","突破"]):
+                    if self.ocr_and_click(["结界","突破"],box=self.box_of_screen(0.45, 0.09, 0.55, 0.18)):
                         self.click_relative(x, y, after_sleep=1)
                         self.ocr_and_click("进攻",box=self.box_of_screen(*group_rows_2[8]))
 
                     if  self.wait_click_feature('Battle_Back', threshold=0.7,
-                                    box=self.box_of_screen(0,0,0.2,0.2),
+                                    box=self.box_of_screen(0,0,0.1,0.1),
                                     raise_if_not_found=False, time_out=5, after_sleep=0.5):
-                        if texts := self.wait_ocr(match='确认',box=self.box_of_screen(0.54,0.55,0.62,0.59),threshold=0.8,time_out=1):
-                            self.click_box(texts[0], after_sleep=1)
+                        if res := self.ocr_and_click('确认',box=self.box_of_screen(0.54,0.55,0.62,0.70)):
                             self.info_set("步骤", "点击 确认")
-
                             if  self.wait_click_feature('Battle_Failure', threshold=0.7,
                                         box=self.B('Battle_Failure'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=10, after_sleep=1):
                                 print(i)
                                 self.info_set("步骤", "返回结界突破")
                             else:
@@ -141,9 +146,9 @@ class RealmRaidTask(BaseBattleTask):
                         else:
                             self.info_set("确认弹窗", "无")
                             self.log_warning("找不到Battle_Finish")
-
-            self.click_relative(x, y, after_sleep=0.5)
-            self.log_info("进攻")
+            if self.ocr_and_click(["结界","突破"],box=self.box_of_screen(0.45, 0.09, 0.55, 0.18)):
+                self.click_relative(x, y, after_sleep=0.5)
+                self.log_info("进攻")
             if self.ocr_and_click("进攻",box=self.box_of_screen(*group_rows_2[target-1])):
                 self.log_info(f"点击第 {target} 个")
             else:
@@ -154,11 +159,18 @@ class RealmRaidTask(BaseBattleTask):
 
             if not self.wait_click_feature('Battle_Success', threshold=0.7,
                                     box=self.B('Battle_Success'),
-                                    raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=1.5):
+                                    raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=0.5):
                 self.log_warning("找不到Battle_Success")
+
             if res := self.wait_feature('Battle_Finish', threshold=0.7,
                                     box=self.B('Battle_Finish'),
                                     raise_if_not_found=False, time_out=5):
+                    self.sleep(1)
+                    self.click(res,after_sleep=1)
+            elif (res := self.wait_feature('Battle_Finish_Soul', threshold=0.7,
+                                    box=self.B('Battle_Finish_Soul'),
+                                    raise_if_not_found=False, time_out=5)):
+                
                     self.sleep(1)
                     self.click(res,after_sleep=1)
             else:

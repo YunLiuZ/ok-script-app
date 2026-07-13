@@ -12,13 +12,18 @@ class SoulZonesTask(BaseBattleTask):
             "UserStatus": "队长",
             "Friend 1": "",
             "Friend 2": "",
-            "Soul Zones" :"悲鸣",
-            
+            "Soul Zones": "悲鸣",
+            "魂十一": "",
+            "魂十二": "",
+            "魂十三": "",
 
         })
         self.config_description.update({
             "UserStatus": "队伍角色：队长创建的队伍，队员加入队伍，单人独自挑战。",
             "Friend 1": "邀请几位就填几位，不邀请请不要填写",
+            "魂十一": "预设队伍编号，格式：组,队  例如 1,5 表示第1组第5个队伍（对应悲鸣）",
+            "魂十二": "预设队伍编号，格式：组,队  例如 2,3 表示第2组第3个队伍（对应神罚）",
+            "魂十三": "预设队伍编号，格式：组,队  例如 3,1 表示第3组第1个队伍（对应虚无）",
         })
         self.config_type.update({
             "UserStatus": {
@@ -34,7 +39,7 @@ class SoulZonesTask(BaseBattleTask):
     def run(self):
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
+            self._switch_preset_by_soul_zone()
         if self.config["UserStatus"] in ("队长"):
             if self.SoulZones_page():
                 if self.Leader_page():
@@ -61,6 +66,29 @@ class SoulZonesTask(BaseBattleTask):
             else: 
                 self.log_info("等待超过六十秒")
 
+    def _switch_preset_by_soul_zone(self):
+        """根据 Soul Zones 选择，从对应的魂XX配置中解析 组,队 并切换预设。"""
+        zone_map = {
+            "悲鸣": "魂十一",
+            "神罚": "魂十二",
+            "虚无": "魂十三",
+        }
+        key = zone_map.get(self.config["Soul Zones"])
+        if key and self.config.get(key):
+            val = self.config[key].strip()
+            if val:
+                parts = val.split(",")
+                if len(parts) == 2:
+                    group = int(parts[0].strip())
+                    team = int(parts[1].strip())
+                    self.log_info(f"({self.config['Soul Zones']}) → {key}: 组{group} 队{team}")
+                    self.SwitchSoul_by_num(group, team)
+                    return
+        # 兜底：使用默认的 Preset Team
+        self.log_info("使用默认预设队伍")
+        group, team = self._parse_preset()
+        self.SwitchSoul_by_num(group, team)
+
     def SoulZones_page(self):   
 
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
@@ -68,10 +96,16 @@ class SoulZonesTask(BaseBattleTask):
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
-
-        if not (text:=self.ocr_and_click(['御魂','御','魂'],1,box=self.box_of_screen(0.11,0.94,0.17,0.98))):
+        if self.wait_click_feature('Exploration_Soul', threshold=0.7,
+                                        box=self.B('bottom'),
+                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+            self.log_info("探索 Soul")
+            self.info_set("步骤", "进入Soul")
+        elif text:=self.ocr_and_click(['御魂','御','魂'],1,box=self.box_of_screen(0.18, 0.86, 0.26, 0.99)):
             print(text)
-            self.log_info('找不到御魂页面')
+        else:
+            self.log_info('找不到Soul')
+            return False
 
         if text:=self.wait_ocr(['御魂','御','魂'],box=self.box_of_screen(0.11,0,0.17,0.1)):
 
@@ -113,16 +147,9 @@ class SoulZonesTask(BaseBattleTask):
     def Leader_page(self):
         if self.ocr_and_click(['组队'],box=self.box_of_screen(0.74,0.82,0.83,0.92)):
             self.log_info('点击组队')
-
-        if text:=self.wait_ocr(['组队','组','队'],box=self.box_of_screen(0,0,0.17,0.1),time_out=3):
-            self._swipe(0.39,0.66,0.39,0.29,0.5)
-            self._swipe(0.39,0.66,0.39,0.29,0.5)
-            self.sleep(0.5)
-            if text:=self.ocr_and_click(self.config["Soul Zones"],1,box=self.box_of_screen(0.32,0.42,0.48,0.69),time_out=3):
-                self.log_info('寻找悲鸣')
-            else:self.log_info('找不到悲鸣')
-
-            self.click_relative(0.84,0.87,after_sleep=1) #组队  
+        self.sleep(0.5)
+    
+        self.click_relative(0.84,0.87,after_sleep=1) #组队  
 
         if text:=self.ocr_and_click(['不公开','仅邀请',],box=self.box_of_screen(0.61,0.67,0.78,0.74)):
             print(text)
