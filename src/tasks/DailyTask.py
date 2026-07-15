@@ -21,15 +21,23 @@ class DailyTask(BaseOmjTask):
         # if self.config["Orchids"]:
         #     self.Orchids()
         self.in_home_and_back()
-        if self.state.is_done_today("daily_sign"):
-            self.log_info(f"今日已签到 ({self.state.done_at('daily_sign')})，跳过")
-        else:
-            self.Sign()
+        if not self.Sign():
+            return False
+        if not self.Gift_Shop_Sign():
+            return False
+        return True
 
-        if self.state.is_done_today("gift_shop"):
-            self.log_info(f"礼包屋今日已签到 ({self.state.done_at('gift_shop')})，跳过")
-        else:
-            self.Gift_Shop_Sign()
+
+
+        # if self.state.is_done_today("daily_sign"):
+        #     self.log_info(f"今日已签到 ({self.state.done_at('daily_sign')})，跳过")
+        # else:
+        #     self.Sign()
+        #
+        # if self.state.is_done_today("gift_shop"):
+        #     self.log_info(f"礼包屋今日已签到 ({self.state.done_at('gift_shop')})，跳过")
+        # else:
+        #     self.Gift_Shop_Sign()
 
     def Sign(self):
         """签到流程"""
@@ -104,6 +112,7 @@ class DailyTask(BaseOmjTask):
                                 box=self.B('Home_Button'),
                                 raise_if_not_found=False, time_out=3,after_sleep=2):
             self.log_info("签到完成")
+            return True
 
     def Gift_Shop_Sign(self):
         """礼包屋签到流程"""
@@ -141,12 +150,12 @@ class DailyTask(BaseOmjTask):
         else:
             self.log_info("找不到奖励")
 
-        self.wait_click_feature('Home_Button', threshold=0.7,
+        if self.wait_click_feature('Home_Button', threshold=0.7,
                                 box=self.B('Home_Button'),
-                                raise_if_not_found=False, time_out=3,after_sleep=2)
+                                raise_if_not_found=False, time_out=3,after_sleep=2):
+            return True
         # self.state.mark_done("gift_shop")  # 测试期间注释
         self.log_info("礼包屋签到完成", notify=True)
-        self.in_home_and_back()
 
     def Orchids(self):
         self.in_home_and_back()

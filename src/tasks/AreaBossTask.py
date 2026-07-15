@@ -13,12 +13,15 @@ class AreaBossTask(BaseBattleTask):
         if self.config["Preset Enable"]:
             group, team = self._parse_preset()
             self.SwitchSoul_by_num(group, team)
-        if self.AreaBoss_page():
-            self.Battle()
-            self.sleep(1)     
-            self.Back_Home() 
-        else:
+        if not self.AreaBoss_page():
             self.log_warning("找不到鬼王页面")
+            return False
+        if not self.Battle():
+            self.log_warning("battle失败")
+            return False
+        self.sleep(1)
+        self.Back_Home()
+        return True
 
     def AreaBoss_page(self):
         # self.In_Home()
@@ -68,23 +71,19 @@ class AreaBossTask(BaseBattleTask):
             if not lock_res:
                 pass
 
-            if not self.wait_click_feature('Battle_Success', threshold=0.7,
-                                    box=self.B('Battle_Success'),
-                                    raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=1):
-                self.log_warning("找不到Battle_Success")
-
-            self.click_relative(0.6,0.3,after_sleep=0.5)
-
-            self.Find_finish()
+            self.Find_finish(self.config["BattleTime"])
             
             if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
                                     box=self.B('Daily_New_Cancel'),
                                     raise_if_not_found=False, time_out=5, after_sleep=1):
                 self.log_warning("找不到Daily_New_Cancel")
+                self.Back_Home()
+                return False
             self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
             self.count+=1
             self.trigger_count+=1
-                    
+        return True
+
     def Battle_process(self):
         pass
 

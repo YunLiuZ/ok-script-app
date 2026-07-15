@@ -138,12 +138,15 @@ config = {
         ["src.tasks.UtilizeTask", "UtilizeTask"],
 
         ["src.tasks.TaskScheduler", "TaskScheduler"],
-        
+        ["src.tasks.RestartGameTask", "RestartGameTask"],
+
         ["ok", "DiagnosisTask"],
     ],
     'trigger_tasks': [  # 后台自动运行的调度任务
-        ["src.tasks.ScheduleRunner", "ScheduleRunner"],
+        ["src.tasks.AutoScheduleRunner", "ScheduleRunner"],
+        ["src.tasks.AutoLoginTask", "AutoLoginTask"],
         ["src.tasks.TriggerTask", "MyTriggerTask"],
-        
+
+
     ],
 }

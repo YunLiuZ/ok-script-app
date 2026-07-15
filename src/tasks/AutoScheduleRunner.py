@@ -98,7 +98,7 @@ class ScheduleRunner(TriggerTask):
         self.name = "后台调度器"
         self.description = "按设定的时间表自动执行日常任务"
         self.trigger_count = 0
-        self.default_config = {'_enabled': False}
+        self.default_config = {'_enabled': True}
         self.default_config.update({"轮询间隔(秒)": 1})
         self.config_description.update({"轮询间隔(秒)": "检查间隔，默认 1 秒。"})
 
@@ -123,11 +123,11 @@ class ScheduleRunner(TriggerTask):
         cfg = _load_cfg()
         schedules = cfg.get("schedules", _default_schedules())
         changed = False
-
+        self.log_info(f"{fmt_time(now)},{self.trigger_interval}")
         for name, s in schedules.items():
             if not s.get("enabled") or name not in TASK_MAP:
                 continue
-
+            self.log_info(f"{name},{s.get('next_run', '未设置')}")
             next_run = parse_time(s.get("next_run", ""))
             if next_run is None:
                 continue

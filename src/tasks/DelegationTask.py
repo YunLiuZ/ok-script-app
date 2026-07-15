@@ -36,11 +36,21 @@ class DelegationTask(BaseOmjTask):
         })
 
     def run(self):
-        if self.in_home_and_back():
-            self.Delegation_page()
-            self.Finish_delegation()
-            self.Delegation_selet()
-            self.Back_Home()
+        self.in_home_and_back()
+        if not self.Delegation_page():
+            self.log_warning("Delegation_page 失败")
+            return False
+        if not self.self.Finish_delegation():
+            self.log_warning("Finish_delegation 失败")
+            return False
+        if not self.self.Delegation_selet():
+            self.log_warning("Delegation_selet 失败")
+            return False
+        if not self.self.Back_Home():
+            self.log_warning("Back_Home 失败")
+            return False
+        return True
+
 
     def Delegation_page(self):
         """导航到式神委派页面"""
@@ -100,6 +110,7 @@ class DelegationTask(BaseOmjTask):
                 else:
                     self.Delegation()
                     self._swipe(0.85, 0.80, 0.85, 0.30, 0.5)
+        return True
 
     def Finish_delegation(self):
         self.log_info('检查是否有已完成的委派')
@@ -123,11 +134,11 @@ class DelegationTask(BaseOmjTask):
                                             box=self.box_of_screen(0.49, 0.69, 0.59, 0.79))):
             print(text)
             self.log_info('找不到跳过')
-        if not (text := self.ocr_and_click(['委派'], 2,
+        if not (text := self.ocr_and_click(['委派','式神'], 2,
                                             box=self.box_of_screen(0.73, 0.35, 0.93, 0.53))):
             print(text)
             self.log_info('找不到式神委派')
-        if not (text := self.ocr_and_click(['一键'], 2,
+        if not (text := self.ocr_and_click(['一键','选择'], 2,
                                         box=self.box_of_screen(0.85, 0.59, 0.98, 0.88))):
             print(text)
             self.log_info('找不到一键')
@@ -138,4 +149,5 @@ class DelegationTask(BaseOmjTask):
             if text := self.wait_ocr(['式神'],
                                     box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=3):
                 return True
-            else: return False
+            else:
+                return False

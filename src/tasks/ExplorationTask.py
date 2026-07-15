@@ -27,35 +27,45 @@ class ExplorationTask(BaseBattleTask):
             },
         })
     def run(self):
-        self.Leader_battle()
-        # self.in_home_and_back()
-        # if self.config["Preset Enable"]:
-        #     self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
-        # if self.config["UserStatus"] in ("队长"):
-        #     if self.Exploration_page():
-        #         if self.Leader_page():
-        #             if self.Invitation():
-        #                 self.log_info("进入battle")
-        #                 self.Leader_battle()
-        #             else:
-        #                 self.log_warning("Invitation 失败")
-        #         else:
-        #             self.log_warning("Leader_page 失败")
-        #     else:
-        #         self.log_warning("SoulZones_page 失败")
+        self.in_home_and_back()
+        if self.config["Preset Enable"]:
+            group, team = self._parse_preset()
+            self.SwitchSoul_by_num(group, team)
 
-        # elif self.config["UserStatus"] in ("单人"):
-        #     self.SoulZones_page()
-        #     self.Alone_battle()
-        # else:
-        #     self.log_info("等待邀请")
-        #     if  self.wait_click_feature('Invitation_Confirm', threshold=0.7,
-        #                             box=self.B('Invitation_Confirm'),
-        #                             raise_if_not_found=False, time_out=120, after_sleep=1):
-        #         self.Member_battle()
-                
-        #     else: 
-        #         self.log_info("等待超过六十秒")
+        if self.config["UserStatus"] == "队长":
+            if not self.Exploration_page():
+                self.log_warning("Exploration_page 失败")
+                return False
+            if not self.Leader_page():
+                self.log_warning("Leader_page 失败")
+                return False
+            if not self.Invitation():
+                self.log_warning("Invitation 失败")
+                return False
+            self.log_info("进入battle")
+            if not self.Leader_battle():
+                return False
+            return True
+
+        elif self.config["UserStatus"] == "单人":
+            if not self.Exploration_page():
+                self.log_warning("Exploration_page 失败")
+                return False
+            self.Alone_battle()
+            return True
+
+        else:  # 队员
+            self.log_info("等待邀请")
+            if self.wait_click_feature('Invitation_Confirm', threshold=0.7,
+                                        box=self.B('Invitation_Confirm'),
+                                        raise_if_not_found=False, time_out=300, after_sleep=1):
+                if self.Member_battle():
+                    return True
+                else:
+                    return False
+            else:
+                self.log_warning("等待邀请超时")
+                return False
     def Exploration_page(self):   
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
@@ -68,7 +78,9 @@ class ExplorationTask(BaseBattleTask):
         if  (text:=self.ocr_and_click(['困难'],1,box=self.box_of_screen(0.01, 0.25, 0.13, 0.51))):
             return True
         else:
+
             self.log_info('找不到困难')
+            return False
             
    
 
@@ -85,6 +97,8 @@ class ExplorationTask(BaseBattleTask):
             print(text)
             self.click_relative(0.68,0.80,after_sleep=1)
             return True
+        else:
+            return False
         
         
     def _invite_one(self, f: str, invite_xy: tuple, confirm_box: tuple) -> bool:
@@ -112,21 +126,13 @@ class ExplorationTask(BaseBattleTask):
            
     def Leader_battle(self):
         self.count = 1
-       
-                    
-       
         def battle():
             if (self.wait_click_feature('Exploration_Battle', threshold=0.7,
                                     box=self.box_of_screen(0.16, 0.22, 1.0, 0.88),
                                     raise_if_not_found=False, time_out=3,after_sleep=0.5)):
                 self.log_info("进入战斗")
-                if not self.wait_click_feature('Battle_Success', threshold=0.7,
-                                    box=self.B('Battle_Success_Soul'),
-                                    raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=2):
-                    self.log_warning("找不到Battle_Success_Soul")
+                self.Find_finish(self.config["BattleTime"])
 
-                self.Find_finish()
-                
                 self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
                 self.count+=1
                 self.trigger_count+=1
@@ -138,14 +144,7 @@ class ExplorationTask(BaseBattleTask):
             if self.wait_click_feature('Exploration_Final_Battle', threshold=0.7,
                                     box=self.box_of_screen(0.16, 0.22, 1.0, 0.88),
                                     raise_if_not_found=False, time_out=3, after_sleep=2):
-                if not self.wait_click_feature('Battle_Success', threshold=0.7,
-                                        box=self.B('Battle_Success_Soul'),
-                                        raise_if_not_found=False, time_out=self.config["BattleTime"], after_sleep=2):
-                        self.log_warning("找不到Battle_Success_Soul")
-
-
-                
-                self.Find_finish()
+                self.Find_finish(self.config["BattleTime"])
                 self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
                 self.log_info("最后一次战斗结束")
                 self.count+=1
@@ -153,7 +152,7 @@ class ExplorationTask(BaseBattleTask):
                 return True
             else:
                 return False
-        while(self.count <= self.config["AttackNumber"]):
+        while self.count <= self.config["AttackNumber"]:
             if self.ocr_and_click(self.config["Friend 1"], time_out=20,box=self.box_of_screen (0.77, 0.14, 0.88, 0.19)):
                     self.click_relative(0.95,0.90,after_sleep=0.5)
                     self.log_info("进入battle")
@@ -171,12 +170,13 @@ class ExplorationTask(BaseBattleTask):
                     self.log_info("打开自动轮换")
             for _ in range(4):
                 battle()
-            self.wait_until(
+            if not self.wait_until(
             final_battle,
             time_out=600,
             pre_action=battle,
             raise_if_not_found=False,
-            )
+            ):
+                return False
 
             if not self.wait_click_feature('Back', threshold=0.7,
                                                 box=self.B('Back'),
@@ -188,8 +188,12 @@ class ExplorationTask(BaseBattleTask):
                     self.ocr_and_click("确定",box=self.box_of_screen(0.34, 0.39, 0.67, 0.66))
                 else:
                     break
-        self.ocr_and_click("取消",box=self.box_of_screen(0.33, 0.55, 0.48, 0.66))
-        self.Back_Home()
+        if self.ocr_and_click("取消",box=self.box_of_screen(0.33, 0.55, 0.48, 0.66)):
+            self.Back_Home()
+            return True
+        else:
+            return False
+
     def Member_battle(self):
         pass
         

@@ -16,29 +16,141 @@ class BaseOmjTask(BaseTask):
 
 
     # ---- 自动代理：self.xxx → og.my_app.xxx ----
-    _GLOBAL_ATTRS = {"logged_in", "state"}
+    # _GLOBAL_ATTRS = {"logged_in", "state"}
+    #
+    # def __getattr__(self, name):
+    #     if name in self._GLOBAL_ATTRS:
+    #         return getattr(og.my_app, name)
+    #     raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+    #
+    # def __setattr__(self, name, value):
+    #     if name in self._GLOBAL_ATTRS:
+    #         setattr(og.my_app, name, value)
+    #     else:
+    #         super().__setattr__(name, value)
+    @property
+    def logged_in(self):
+        return og.my_app.logged_in
 
-    def __getattr__(self, name):
-        if name in self._GLOBAL_ATTRS:
-            return getattr(og.my_app, name)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+    @logged_in.setter
+    def logged_in(self, value):
+        og.my_app.logged_in = value
 
-    def __setattr__(self, name, value):
-        if name in self._GLOBAL_ATTRS:
-            setattr(og.my_app, name, value)
-        else:
-            
-            
-            super().__setattr__(name, value)
+
+# region Logged
+    def wait_home(self):
+        if not self.logged_in:
+            if self.base_scene():
+                self.logged_in = True
+                return True
+        return False
+    def log_page(self):
+        cancel_box = self.box_of_screen(0.5, 0, 1, 0.5)
+        if self.ocr_and_click(['进入','游戏'],3,box=self.box_of_screen(0.41, 0.78, 0.58, 0.88)):
+            self.log_info("进入游戏")
+            if self.base_scene():
+                self.logged_in = True
+                return True
+        if self.ocr('切换',box=self.box_of_screen(0.38, 0.69, 0.62, 0.77)):
+            self.click_relative(0.5,0.83)
+            self.sleep(3)
+            if self.base_scene():
+                self.logged_in = True
+            return True
+        if self.ocr(match=re.compile('公告|扫码|下载|修复|账号'),
+                    box=self.box_of_screen(0.92, 0.08, 0.99, 0.91),):
+            self.click_relative(0.5, 0.83)
+            self.sleep(3)
+            if self.base_scene():
+                self.logged_in = True
+            return True
+        if btns := self.find_feature('Daily_New_Cancel',
+                                     box=cancel_box, threshold=0.8):
+            self.click(btns[0], after_sleep=0.2)
+            self.log_info('关闭弹窗')
+            return False
+        if btns := self.find_feature('Cancel_Old',
+                                     box=cancel_box, threshold=0.8):
+            self.click(btns[0], after_sleep=0.2)
+            self.log_info('关闭弹窗')
+            return False
+        if btns := self.find_feature('Back', box=self.B('Back'), threshold=0.8):
+            self.click(btns[0], after_sleep=0.5)
+            self.log_info('点击 Back')
+            return False
+        if btns := self.find_feature('Home_Button', box=self.B('Home_Button'), threshold=0.8):
+            self.click(btns[0], after_sleep=0.3)
+            self.log_info('点击 Home_Button')
+            return False
+    def restart_game(self, wait_load=True):
+        """通过 ADB 强制停止并重新启动游戏。返回 True 表示重启成功。"""
+        pkg = self.executor.config.get('adb', {}).get('packages', [''])[0]
+        if not pkg:
+            self.log_error("未配置 ADB packages，无法重启游戏")
+            return False
+
+        self.log_info(f"正在重启游戏 ({pkg})...")
+
+        # 强制停止
+        self.log_info("→ 停止游戏...")
+        try:
+            self.adb_shell(f'am force-stop {pkg}', timeout=10)
+        except Exception as e:
+            self.log_warning(f"force-stop 异常（可能已停止）: {e}")
+
+        self.sleep(2)
+        self.logged_in = False
+        # 重新启动
+        self.log_info("→ 启动游戏...")
+        try:
+            self.adb_shell(
+                f'monkey -p {pkg} -c android.intent.category.LAUNCHER 1',
+                timeout=10,
+            )
+        except Exception as e:
+            self.log_error(f"启动游戏失败: {e}")
+            return False
+
+        if wait_load:
+            self.log_info("→ 等待游戏加载 (15s)...")
+            self.sleep(15)
+
+        self.log_info("游戏重启完成")
+        return True
+
+
+
+
+# endregion
 #region Home
+    def base_scene(self):
+        if home := self.find_one(["Home_Store","Home_Shikigami_Chronicles"], threshold=0.8, box=self.B('bottom')):
+            self.log_info("home")
+            return True
+        if town := self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town')):
+            self.log_info("town")
+            return True
+
+        if exploration := self.find_one(["Exploration_Delegation","Exploration_Hero","Exploration_Awake"],
+                                        box=self.B('bottom')):
+            self.log_info("exploration")
+            return True
+        else:
+            return False
+
+
     def in_home_and_back(self):
+
         if self.In_Home():
             self.log_info("在主页")
         else:
             self.log_info("不在主页")
             self.Back_Home()
         return True
+    def Login(self):
+        self.wait_until(
 
+        )
     def In_Home(self):
         self.log_info("寻找町中")
         town = self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'))
@@ -193,6 +305,8 @@ class BaseOmjTask(BaseTask):
             int(to_x * w), int(to_y * h),  # 终点像素
             duration=duration,
         )
-        
+
         self.log_info('滑动完成')
-    
+
+    # ---------- 游戏重启 ----------
+

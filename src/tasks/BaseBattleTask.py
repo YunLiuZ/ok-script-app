@@ -126,27 +126,93 @@ class BaseBattleTask(BaseOmjTask):
             if self.ocr_and_click("准备",box=self.box_of_screen(0.87, 0.77, 0.96, 0.85)):
                 return True
             else: return False
-    def Find_finish(self):
-        if self.wait_click_feature('Battle_Finish', threshold=0.7,
-                                    box=self.B('Battle_Finish'),
-                                    raise_if_not_found=False, time_out=5):
-                    self.sleep(1)
-                    if res1 := self.find_one('Battle_Finish', threshold=0.7,
-                                                    box=self.B('Battle_Finish')):
-                        self.click(res1)
-                        self.log_info("第一次没点到")
-                    else:
-                        self.log_info("第一次点到")
-            
-        elif (self.wait_click_feature('Battle_Finish_Soul', threshold=0.7,
-                                box=self.B('Battle_Finish_Soul'),
-                                raise_if_not_found=False, time_out=5)):
+    def Find_finish(self, battle_time, success_box='Battle_Success'):
+        """
+        等待战斗结束并处理结算画面。
+        同时检测 Battle_Success 和 Battle_Finish，用各自的 box。
+        保留原嵌套重试逻辑：点一次 → sleep → 确认 → 没点上再补刀。
+
+        Returns:
+            True  战斗正常结束
+            False 超时
+        """
+        success_clicked = False
+        def finish():
+            if self.wait_click_feature('Battle_Finish', threshold=0.7,
+                                        box=self.B('Battle_Finish'),
+                                        raise_if_not_found=False, time_out=3):
+                self.sleep(1)
+                if res1 := self.find_one('Battle_Finish', threshold=0.7,
+                                          box=self.B('Battle_Finish')):
+                    self.click(res1)
+                    self.log_info("第一次没点到")
+                    return True
+                else:
+                    self.log_info("第一次点到")
+                return True
+            elif self.wait_click_feature('Battle_Finish_Soul', threshold=0.7,
+                                        box=self.B('Battle_Finish_Soul'),
+                                        raise_if_not_found=False, time_out=3):
                 self.sleep(1)
                 if res1 := self.find_one('Battle_Finish_Soul', threshold=0.7,
-                                                box=self.B('Battle_Finish_Soul')):
+                                          box=self.B('Battle_Finish_Soul')):
+                    self.click(res1)
+                    self.log_info("第一次没点到")
+                    return True
+                else:
+                    self.log_info("第一次点到")
+                    return True
+            return False
+
+        def check():
+            if res := self.find_one('Battle_Success', threshold=0.7,
+                                        box=self.B(success_box)):
+
+                self.click(res)
+                self.sleep(1)
+                if res1 := self.find_one('Battle_Success', threshold=0.7,
+                                          box=self.B(success_box)):
                     self.click(res1)
                     self.log_info("第一次没点到")
                 else:
                     self.log_info("第一次点到")
-        else:
-            self.log_warning("找不到Battle_Finish 222")
+                if finish():
+                    return True
+                else:
+                    return False
+            # 检测 Battle_Finish（原嵌套重试逻辑）
+            if res := self.find_one('Battle_Finish', threshold=0.7,
+                                        box=self.B('Battle_Finish'),
+                                        ):
+                self.click(res)
+                self.sleep(1)
+                if res1 := self.find_one('Battle_Finish', threshold=0.7,
+                                          box=self.B('Battle_Finish')):
+                    self.click(res1)
+                    self.log_info("第一次没点到")
+                    self.sleep(1)
+                    return True
+                else:
+                    self.log_info("第一次点到")
+                    return True
+            if res := self.find_one('Battle_Finish_Soul', threshold=0.7,
+                                        box=self.B('Battle_Finish_Soul'),
+                                        ):
+                self.click(res)
+                self.sleep(1)
+                if res1 := self.find_one('Battle_Finish_Soul', threshold=0.7,
+                                          box=self.B('Battle_Finish_Soul')):
+                    self.click(res1)
+                    self.log_info("第一次没点到")
+                    self.sleep(1)
+                    return True
+                else:
+                    self.log_info("第一次点到")
+                    return True
+            return False
+
+        if self.wait_until(check, time_out=battle_time, raise_if_not_found=False):
+            return True
+
+        self.log_warning("战斗结束超时")
+        return False
