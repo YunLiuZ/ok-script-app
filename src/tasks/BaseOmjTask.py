@@ -13,21 +13,6 @@ class BaseOmjTask(BaseTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.rows = {1: 0.09, 2: 0.18, 3: 0.27, 4: 0.35, 5: 0.42, 6: 0.53, 7: 0.62,8: 0.71, 9: 0.80, 10: 0.88}#0.89
-
-
-    # ---- 自动代理：self.xxx → og.my_app.xxx ----
-    # _GLOBAL_ATTRS = {"logged_in", "state"}
-    #
-    # def __getattr__(self, name):
-    #     if name in self._GLOBAL_ATTRS:
-    #         return getattr(og.my_app, name)
-    #     raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-    #
-    # def __setattr__(self, name, value):
-    #     if name in self._GLOBAL_ATTRS:
-    #         setattr(og.my_app, name, value)
-    #     else:
-    #         super().__setattr__(name, value)
     @property
     def logged_in(self):
         return og.my_app.logged_in
@@ -45,12 +30,22 @@ class BaseOmjTask(BaseTask):
                 return True
         return False
     def log_page(self):
-        cancel_box = self.box_of_screen(0.5, 0, 1, 0.5)
         if self.ocr_and_click(['进入','游戏'],3,box=self.box_of_screen(0.41, 0.78, 0.58, 0.88)):
             self.log_info("进入游戏")
             if self.base_scene():
                 self.logged_in = True
                 return True
+        if self.ocr('公告',box=self.box_of_screen(0,0,0.24,0.81)):
+            self.log_info("有公告")
+            if btns := self.find_feature('Daily_New_Cancel', box=self.B('Cancel_Box'), threshold=0.7):
+                 self.click(btns[0], after_sleep=0.2)                 
+            self.log_info('关闭弹窗')
+            return False
+        if self.ocr(match=re.compile('下载'),
+                     box=self.box_of_screen(0.37, 0.87, 0.63, 0.96)):
+            self.log_info("检测到正在下载")
+            self.sleep(5)
+            return False
         if self.ocr('切换',box=self.box_of_screen(0.38, 0.69, 0.62, 0.77)):
             self.click_relative(0.5,0.83)
             self.sleep(3)
@@ -65,12 +60,12 @@ class BaseOmjTask(BaseTask):
                 self.logged_in = True
             return True
         if btns := self.find_feature('Daily_New_Cancel',
-                                     box=cancel_box, threshold=0.8):
+                                     box=self.B('Cancel_Box'), threshold=0.8):
             self.click(btns[0], after_sleep=0.2)
             self.log_info('关闭弹窗')
             return False
         if btns := self.find_feature('Cancel_Old',
-                                     box=cancel_box, threshold=0.8):
+                                     box=self.B('Cancel_Box'), threshold=0.8):
             self.click(btns[0], after_sleep=0.2)
             self.log_info('关闭弹窗')
             return False
@@ -119,8 +114,6 @@ class BaseOmjTask(BaseTask):
         return True
 
 
-
-
 # endregion
 #region Home
     def base_scene(self):
@@ -137,8 +130,6 @@ class BaseOmjTask(BaseTask):
             return True
         else:
             return False
-
-
     def in_home_and_back(self):
 
         if self.In_Home():
@@ -147,33 +138,36 @@ class BaseOmjTask(BaseTask):
             self.log_info("不在主页")
             self.Back_Home()
         return True
-    def Login(self):
-        self.wait_until(
-
-        )
     def In_Home(self):
         self.log_info("寻找町中")
-        town = self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'))
-        if town:
-            self.log_info("町中")
+        home = self.find_one(["Home_Store","Home_Shikigami_Chronicles","YinYang_Lodge"], threshold=0.75, box=self.B('bottom'))
+        if not (town :=self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'))):
+            if not (town :=self.find_feature('Home_Explore', threshold=0.8, box=self.B('Home_Explore'))):
+                town1 = self.find_one(["Home_Town","Home_Explore"], threshold=0.8, box=self.B('Home_Exp'))
+        if town and home:
+            self.log_info("主页")
             return True
-        else:
-            self.log_info("不寻找町中")
-        store = self.find_feature('Home_Store', threshold=0.8, box=self.B('Home_Store'))
-        self.log_info("寻找商店")
-        if store:
-            self.log_info("寻找到了商店")
-            self.reset()
-            if self.wait_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'),time_out=3):
+        elif town and (not home):
+            self.log_info("卷轴没有打开")
+            self.sleep(0.5)
+            self.click_relative(0.94, 0.89,after_sleep=1)
+            if home := self.find_one(["Home_Store","Home_Shikigami_Chronicles","YinYang_Lodge"], threshold=0.75, box=self.B('bottom')):
                 return True
-        elif  store := self.find_feature('Home_Store', threshold=0.8, box=self.B('bottom')):
-            self.log_info("寻找到了商店")
-            self.reset()
-            if self.wait_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'),time_out=3):
+        elif town1 and home:
+            if self.reset():
                 return True
-        elif self.reset():
-            return True
-        else:return False
+        elif town1 and (not home):
+            self.log_info("卷轴没有打开,而且角色位置不是很对")
+            self.sleep(0.5)
+            self.click_relative(0.94, 0.89,after_sleep=1)
+            if home := self.find_one(["Home_Store","Home_Shikigami_Chronicles","YinYang_Lodge"], threshold=0.75, box=self.B('bottom')):
+                if self.reset():
+                    return True
+        elif home:
+            if self.reset():
+                return True
+        return False
+       
     def Back_Home(self):
         """快速路径：Home_Button → Back → Home_Button。"""
         self.log_info('进入backhome')

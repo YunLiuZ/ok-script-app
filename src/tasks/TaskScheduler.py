@@ -55,6 +55,8 @@ class TaskScheduler(BaseOmjTask):
         })
 
     def run(self):
+        if not self.logged_in:
+            return False
         enabled = self.config.get("任务列表", [])
 
         # 收集 (顺序, 名称)

@@ -104,11 +104,18 @@ class ScheduleRunner(TriggerTask):
 
     def enable(self):
         super().enable()
+        # 如果设备未连接，通过 StartController 启动游戏（和 onetime 任务行为一致）
+        if self.executor.device_manager and not self.executor.device_manager.device_connected():
+            from ok import og
+            og.app.start_controller.start()
         self.executor.start()          # 确保 executor 线程启动
 
     def on_create(self):
         super().on_create()
         self.trigger_interval = self.config.get("轮询间隔(秒)", 1)
+        # 每次启动强制关闭，不记住上次勾选状态
+        self._enabled = False
+        self.config['_enabled'] = False
 
     # ==================== 主循环 ====================
 
@@ -133,6 +140,10 @@ class ScheduleRunner(TriggerTask):
                 continue
 
             if now >= next_run:                                    # 时间到了
+                from ok import og
+                if not og.my_app.logged_in:
+                    self.log_info(f"  {name}: 未登录，跳过（等待 AutoLoginTask）")
+                    continue                                     # 不更新 next_run，下一轮再试
                 self._execute_task(name)                           # → 执行
                 s["last_run"] = fmt_time(now)                      # → 更新上次运行
                 s["next_run"] = fmt_time(now + timedelta(          # → 更新下次运行

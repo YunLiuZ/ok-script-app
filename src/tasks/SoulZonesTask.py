@@ -37,6 +37,8 @@ class SoulZonesTask(BaseBattleTask):
         })
 
     def run(self):
+        if not self.logged_in:
+            return False
         self.in_home_and_back()
         if self.config["Preset Enable"]:
             self._switch_preset_by_soul_zone()

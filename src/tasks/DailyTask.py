@@ -18,6 +18,8 @@ class DailyTask(BaseOmjTask):
         })
 
     def run(self):
+        if not self.logged_in:
+            return False
         # if self.config["Orchids"]:
         #     self.Orchids()
         self.in_home_and_back()
