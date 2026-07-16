@@ -99,7 +99,7 @@ class ScheduleRunner(TriggerTask):
         self.description = "按设定的时间表自动执行日常任务"
         self.trigger_count = 0
         self.default_config = {'_enabled': True}
-        self.default_config.update({"轮询间隔(秒)": 1})
+        self.default_config.update({"轮询间隔(秒)": 1 })
         self.config_description.update({"轮询间隔(秒)": "检查间隔，默认 1 秒。"})
 
     def enable(self):
@@ -144,11 +144,19 @@ class ScheduleRunner(TriggerTask):
                 if not og.my_app.logged_in:
                     self.log_info(f"  {name}: 未登录，跳过（等待 AutoLoginTask）")
                     continue                                     # 不更新 next_run，下一轮再试
-                self._execute_task(name)                           # → 执行
-                s["last_run"] = fmt_time(now)                      # → 更新上次运行
-                s["next_run"] = fmt_time(now + timedelta(          # → 更新下次运行
-                    minutes=parse_interval(s.get("interval", "6:0"))))
-                changed = True
+                ok = self._execute_task(name)                     # → 执行
+                if ok:                                           # 成功才更新
+                    s["last_run"] = fmt_time(now)
+                    s["next_run"] = fmt_time(now + timedelta(
+                        minutes=parse_interval(s.get("interval", "6:0"))))
+                    changed = True
+                elif og.my_app.fail_count.get(name, 0) >= 2:
+                    self.log_warning(f"[{name}] 第二次执行失败，取消调度")
+                    s["enabled"] = False
+                    og.my_app.fail_count[name] = 0
+                    changed = True
+                else:
+                    self.log_info(f"  {name}: 执行失败，next_run 保持不变，下轮重试")
 
         if changed:
             _save_cfg(cfg)                                         # 持久化
@@ -159,10 +167,17 @@ class ScheduleRunner(TriggerTask):
     def _execute_task(self, name: str):
         task_cls = TASK_MAP.get(name)
         if task_cls is None:
-            return
+            return False
         try:
             t = task_cls(self.executor, self._app)
             t.after_init(executor=self.executor, scene=self.scene)
-            t.run()
+            ok = t.run_safe()
+            if not ok:
+                from ok import og
+                og.my_app.schedule_failed = True  # 调度器额外标记
+            return ok
         except Exception as e:
             self.log_error(f"[调度] {name} 执行异常", e)
+            from ok import og
+            og.my_app.schedule_failed = True
+            return False

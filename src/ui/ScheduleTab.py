@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import (
-    BodyLabel, CheckBox, FluentIcon, LineEdit, PrimaryPushButton,
+    BodyLabel, CheckBox, FluentIcon, LineEdit,
     SubtitleLabel, TitleLabel, InfoBar, InfoBarPosition,
 )
 
@@ -110,10 +110,6 @@ class ScheduleTab(CustomTab):
         layout.addStretch()
         self.add_widget(content)
 
-        save = PrimaryPushButton(FluentIcon.SAVE, "保存")
-        save.clicked.connect(self._save)
-        self.add_widget(save)
-
     def _row(self, name, cfg):
         w = QWidget()
         l = QHBoxLayout(w)
@@ -151,13 +147,14 @@ class ScheduleTab(CustomTab):
 
         self._rows[name] = {"enabled": cb, "last_run": lr, "interval": iv, "next": nx}
 
-        # 用户编辑时才刷新下次运行，不用定时器
+        # 用户编辑时实时刷新下次运行时间 + 自动保存
         def update_next():
             if cb.isChecked():
                 nr = calc_next(lr.text().strip(), iv.text().strip())
                 nx.setText(fmt_time(nr) if nr else "—")
             else:
                 nx.setText("—")
+            self._save(show_toast=False)
 
         cb.stateChanged.connect(lambda _: update_next())
         lr.textChanged.connect(lambda _: update_next())
@@ -165,19 +162,12 @@ class ScheduleTab(CustomTab):
 
         return w
 
-    def _save(self):
+    def _save(self, show_toast=True):
         schedules = {}
-        has_error = False
         for name, r in self._rows.items():
             lr_text = r["last_run"].text().strip()
             iv_text = r["interval"].text().strip()
             enabled = r["enabled"].isChecked()
-
-            if enabled and parse_time(lr_text) is None:
-                InfoBar.error("格式错误", f"[{name}] 上次运行格式不对（YYYY.M.D HH:MM）",
-                              duration=5000, position=InfoBarPosition.TOP, parent=self)
-                has_error = True
-                continue
 
             nr = calc_next(lr_text, iv_text) if enabled else None
             schedules[name] = {
@@ -187,11 +177,10 @@ class ScheduleTab(CustomTab):
                 "next_run": fmt_time(nr) if nr else "2000.1.1 0:0",
             }
 
-        if not has_error:
-            _save_cfg({"schedules": schedules})
-            InfoBar.success("保存成功", "调度配置已保存", duration=2000,
+        _save_cfg({"schedules": schedules})
+        if show_toast:
+            InfoBar.success("已保存", "调度配置已更新", duration=1500,
                             position=InfoBarPosition.TOP, parent=self)
-            self.logger.info("调度配置已保存")
 
     @property
     def name(self):

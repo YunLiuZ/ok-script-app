@@ -13,6 +13,7 @@ class BaseOmjTask(BaseTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.rows = {1: 0.09, 2: 0.18, 3: 0.27, 4: 0.35, 5: 0.42, 6: 0.53, 7: 0.62,8: 0.71, 9: 0.80, 10: 0.88}#0.89
+# region global
     @property
     def logged_in(self):
         return og.my_app.logged_in
@@ -21,6 +22,59 @@ class BaseOmjTask(BaseTask):
     def logged_in(self, value):
         og.my_app.logged_in = value
 
+    @property
+    def onetime_failed(self):
+        return og.my_app.onetime_failed
+
+    @onetime_failed.setter
+    def onetime_failed(self, value):
+        og.my_app.onetime_failed = value
+
+    @property
+    def schedule_failed(self):
+        return og.my_app.schedule_failed
+
+    @schedule_failed.setter
+    def schedule_failed(self, value):
+        og.my_app.schedule_failed = value
+
+    @property
+    def failed_task(self):
+        return og.my_app.failed_task
+
+    @failed_task.setter
+    def failed_task(self, value):
+        og.my_app.failed_task = value
+
+    @property
+    def pending_tasks(self):
+        return og.my_app.pending_tasks
+
+    @pending_tasks.setter
+    def pending_tasks(self, value):
+        og.my_app.pending_tasks = value
+
+    def run_safe(self):
+        """包装 run()：管理 fail_count + onetime_failed + failed_task。"""
+        try:
+            result = self.run()
+            if result is False:
+                if self.logged_in:
+                    og.my_app.fail_count[self.name] = og.my_app.fail_count.get(self.name, 0) + 1
+                self.onetime_failed = True
+                self.failed_task = self.name
+                self.log_error(f"[{self.name}] 返回 False，fail_count={og.my_app.fail_count.get(self.name, 0)}")
+                return False
+            og.my_app.fail_count[self.name] = 0  # 成功归零
+            return True
+        except Exception as e:
+            og.my_app.fail_count[self.name] = og.my_app.fail_count.get(self.name, 0) + 1
+            self.onetime_failed = True
+            self.failed_task = self.name
+            self.log_error(f"[{self.name}] 异常: {e}，fail_count={og.my_app.fail_count.get(self.name, 0)}")
+            return False
+
+# endregion
 
 # region Logged
     def wait_home(self):
@@ -30,53 +84,68 @@ class BaseOmjTask(BaseTask):
                 return True
         return False
     def log_page(self):
+        if self.base_scene():
+            self.logged_in = True
+            return True
         if self.ocr_and_click(['进入','游戏'],3,box=self.box_of_screen(0.41, 0.78, 0.58, 0.88)):
             self.log_info("进入游戏")
             if self.base_scene():
                 self.logged_in = True
                 return True
-        if self.ocr('公告',box=self.box_of_screen(0,0,0.24,0.81)):
-            self.log_info("有公告")
+        if text := self.ocr(match='公告',box=self.box_of_screen(0,0,0.24,0.81)):
+            self.log_info("有公告123")
             if btns := self.find_feature('Daily_New_Cancel', box=self.B('Cancel_Box'), threshold=0.7):
-                 self.click(btns[0], after_sleep=0.2)                 
-            self.log_info('关闭弹窗')
-            return False
+                self.click(btns[0], after_sleep=0.2)
+                self.log_info('关闭弹窗1')
         if self.ocr(match=re.compile('下载'),
                      box=self.box_of_screen(0.37, 0.87, 0.63, 0.96)):
             self.log_info("检测到正在下载")
             self.sleep(5)
-            return False
-        if self.ocr('切换',box=self.box_of_screen(0.38, 0.69, 0.62, 0.77)):
+        if self.ocr(match='切换',box=self.box_of_screen(0.38, 0.69, 0.62, 0.77)):
             self.click_relative(0.5,0.83)
             self.sleep(3)
             if self.base_scene():
                 self.logged_in = True
-            return True
         if self.ocr(match=re.compile('公告|扫码|下载|修复|账号'),
                     box=self.box_of_screen(0.92, 0.08, 0.99, 0.91),):
             self.click_relative(0.5, 0.83)
             self.sleep(3)
             if self.base_scene():
                 self.logged_in = True
-            return True
         if btns := self.find_feature('Daily_New_Cancel',
                                      box=self.B('Cancel_Box'), threshold=0.8):
             self.click(btns[0], after_sleep=0.2)
-            self.log_info('关闭弹窗')
-            return False
+            self.log_info('关闭弹窗2')
         if btns := self.find_feature('Cancel_Old',
                                      box=self.B('Cancel_Box'), threshold=0.8):
             self.click(btns[0], after_sleep=0.2)
-            self.log_info('关闭弹窗')
-            return False
+            self.log_info('关闭弹窗3')
         if btns := self.find_feature('Back', box=self.B('Back'), threshold=0.8):
             self.click(btns[0], after_sleep=0.5)
             self.log_info('点击 Back')
-            return False
         if btns := self.find_feature('Home_Button', box=self.B('Home_Button'), threshold=0.8):
             self.click(btns[0], after_sleep=0.3)
             self.log_info('点击 Home_Button')
-            return False
+        if text := self.ocr(
+            match=re.compile('正在连接|断开|重新连接|其他设备'),
+            box=self.box_of_screen(0.34, 0.36, 0.66, 0.65),
+        ):
+            msg = ' '.join(t.name for t in text)
+            self.log_info(f"检测到意外弹窗: {msg}")
+
+            if re.search('正在连接', msg):
+                self.log_info("网络问题，等待10秒后重试...")
+                self.sleep(10)
+                return self.unexpected_error()
+
+            if re.search('断开|重新连接', msg):
+                self.log_info("游戏已断开连接，重启游戏")
+                return self.restart_game()
+
+            if re.search('其他设备', msg):
+                self.log_info("检测到其他设备登录，重启游戏")
+                return self.restart_game()
+
     def restart_game(self, wait_load=True):
         """通过 ADB 强制停止并重新启动游戏。返回 True 表示重启成功。"""
         pkg = self.executor.config.get('adb', {}).get('packages', [''])[0]
@@ -113,6 +182,33 @@ class BaseOmjTask(BaseTask):
         self.log_info("游戏重启完成")
         return True
 
+    def unexpected_error(self):
+        """检测意外弹窗并处理。返回 True 表示已处理，False 表示无需处理。"""
+        if text := self.ocr(
+            match=re.compile('正在连接|断开|重新连接|其他设备'),
+            box=self.box_of_screen(0.34, 0.36, 0.66, 0.65),
+        ):
+            msg = ' '.join(t.name for t in text)
+            self.log_info(f"检测到意外弹窗: {msg}")
+
+            if re.search('正在连接', msg):
+                self.log_info("网络问题，等待10秒后重试...")
+                self.sleep(10)
+                return self.unexpected_error()
+
+            if re.search('断开|重新连接', msg):
+                self.log_info("游戏已断开连接，重启游戏")
+                return self.restart_game()
+
+            if re.search('其他设备', msg):
+                self.log_info("检测到其他设备登录，重启游戏")
+                return self.restart_game()
+
+        return False
+
+
+
+
 
 # endregion
 #region Home
@@ -141,9 +237,11 @@ class BaseOmjTask(BaseTask):
     def In_Home(self):
         self.log_info("寻找町中")
         home = self.find_one(["Home_Store","Home_Shikigami_Chronicles","YinYang_Lodge"], threshold=0.75, box=self.B('bottom'))
-        if not (town :=self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'))):
-            if not (town :=self.find_feature('Home_Explore', threshold=0.8, box=self.B('Home_Explore'))):
-                town1 = self.find_one(["Home_Town","Home_Explore"], threshold=0.8, box=self.B('Home_Exp'))
+        if not (town := self.find_feature('Home_Town', threshold=0.8, box=self.B('Home_Town'))):
+            town = self.find_feature('Home_Explore', threshold=0.8, box=self.B('Home_Explore'))
+        town1 = self.find_one(["Home_Town", "Home_Explore"], threshold=0.8, box=self.B('Home_Exp'))
+        town_ocr = self.ocr(match=re.compile('町中|探索'))
+
         if town and home:
             self.log_info("主页")
             return True
@@ -151,7 +249,7 @@ class BaseOmjTask(BaseTask):
             self.log_info("卷轴没有打开")
             self.sleep(0.5)
             self.click_relative(0.94, 0.89,after_sleep=1)
-            if home := self.find_one(["Home_Store","Home_Shikigami_Chronicles","YinYang_Lodge"], threshold=0.75, box=self.B('bottom')):
+            if  self.find_one(["Home_Store","Home_Shikigami_Chronicles","YinYang_Lodge"], threshold=0.75, box=self.B('bottom')):
                 return True
         elif town1 and home:
             if self.reset():
@@ -217,7 +315,7 @@ class BaseOmjTask(BaseTask):
 
         return self.wait_until(
             self.In_Home,
-            time_out=30,
+            time_out=5,
             post_action=try_back,
             raise_if_not_found=False,
         )

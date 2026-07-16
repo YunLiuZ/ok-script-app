@@ -1,5 +1,4 @@
 from src.tasks.BaseOmjTask import BaseOmjTask
-import time
 
 
 class DailyTask(BaseOmjTask):
@@ -50,53 +49,52 @@ class DailyTask(BaseOmjTask):
                                         box=self.B('Home_Sign'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到签到入口 Home_Sign")
-        self.info_set("步骤", "进入签到页面")
+        self.log_info("进入签到页面")
         self.click_relative(0.92, 0.22, after_sleep=1)
 
         # 点击一键完成
         if self.wait_click_feature('Sign_Button', threshold=0.7,
                                    box=self.B('Sign_Button'),
                                    raise_if_not_found=False, time_out=5,after_sleep=1):
-            self.info_set("步骤", "已点击一键完成")
+            self.log_info("已点击一键完成")
         else:
-            self.info_set("步骤", "没有一键完成")
+            self.log_info("没有一键完成")
 
         # 结界式神经验满弹窗
         if texts := self.wait_ocr(match='确认', box=self.B('ocr_confirm_dialog'),
                              threshold=0.8,time_out=1):
             self.click_box(texts[0])
-            self.info_set("步骤", "点击 确认")
+            self.log_info("点击 确认")
         else:
-            self.info_set("确认弹窗", "无")
+            self.log_info("无")
         self.sleep(2)
-        deadline = time.time() + 2
-        while time.time() < deadline:
-            res1 = self.find_one('Daily_New_Cancel', threshold=0.7,
-                                                    box=self.box_of_screen(0.64, 0.09, 0.75, 0.21))
-            res2 = self.find_one('Battle_Finish', threshold=0.7,
-                                        box=self.box_of_screen(0.3,0.3,0.8,0.8),
-                                        )
-            if res2:
+
+        def check():
+            if res := self.find_one('Battle_Finish', threshold=0.7,
+                                    box=self.box_of_screen(0.3, 0.3, 0.8, 0.8)):
                 self.log_info("五日")
-                self.click(res2)
+                self.click(res)
                 if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
-                                        box=self.box_of_screen(0.64, 0.09, 0.75, 0.21),
-                                        raise_if_not_found=False, time_out=5):
+                                               box=self.box_of_screen(0.64, 0.09, 0.75, 0.21),
+                                               raise_if_not_found=False, time_out=5):
                     self.log_info("找不到一键完成每日签到关闭")
-                break
-            elif res1:
-                self.click(res1,after_sleep=1)
+                return True
+            if res := self.find_one('Daily_New_Cancel', threshold=0.7,
+                                    box=self.box_of_screen(0.64, 0.09, 0.75, 0.21)):
+                self.click(res, after_sleep=1)
                 self.log_info("每日签到关闭")
-                break  
-            else:
-                self.log_warning("没有签到或者签到失败")
+                return True
+            return False
+
+        if not self.wait_until(check, time_out=5, raise_if_not_found=False):
+            self.log_warning("没有签到或者签到失败")
         # 跳过
         if not self.wait_click_feature('Sign_Daily_Skip', threshold=0.7,
                                         box=self.B('Sign_Daily_Skip'),
                                         raise_if_not_found=False, time_out=3):
             if texts := self.ocr(box=self.B('ocr_skip_topright'), match='跳过'):
                 self.click_box(texts[0], after_sleep=2)
-                self.info_set("步骤", "跳过")
+                self.log_info( "跳过")
                 if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
                                                 box=self.B('Daily_New_Cancel'),
                                                 raise_if_not_found=False, time_out=3):

@@ -55,8 +55,7 @@ class TaskScheduler(BaseOmjTask):
         })
 
     def run(self):
-        if not self.logged_in:
-            return False
+
         enabled = self.config.get("任务列表", [])
 
         # 收集 (顺序, 名称)
@@ -74,7 +73,7 @@ class TaskScheduler(BaseOmjTask):
         # 按数字排序
         tasks_to_run.sort(key=lambda x: x[0])
 
-        for order, name in tasks_to_run:
+        for i, (order, name) in enumerate(tasks_to_run):
             task_cls = self.TASK_MAP.get(name)
             if task_cls is None:
                 self.log_warning(f"未找到任务: {name}")
@@ -84,5 +83,9 @@ class TaskScheduler(BaseOmjTask):
             t = task_cls(self.executor, self.scene)
             t.after_init(executor=self.executor, scene=self.scene)
 
-            t.run()
+            ok = t.run_safe()
             self.log_info(f"--- [{order}] 结束: {name} ---")
+            if not ok:
+                self.log_warning(f"--- [{order}] {name} 失败，中断后续任务 ---")
+                self.pending_tasks = tasks_to_run[i:]  # 失败的 + 后面全部
+                return False
