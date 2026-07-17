@@ -132,6 +132,8 @@ config = {
         ["src.tasks.DailyTask", "DailyTask"],
         ["src.tasks.DelegationTask", "DelegationTask"],
         ["src.tasks.UtilizeTask", "UtilizeTask"],
+        ["src.tasks.OrchidsTask", "OrchidsTask"],
+        ["src.tasks.TaskScheduler", "TaskScheduler"],
 
         # ── 日常-战斗 ──
         ["src.tasks.AreaBossTask", "AreaBossTask"],

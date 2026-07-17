@@ -11,14 +11,9 @@ from qfluentwidgets import (
 
 from ok.gui.widget.CustomTab import CustomTab
 from ok.util.config import Config
+from src.globals import ALL_TASK_NAMES
 
 CONFIG_FILE = os.path.join(Config.config_folder, "schedule_runner.json")
-
-ALL_TASK_NAMES = [
-    "日常-签到", "日常-式神委派", "日常-结界",
-    "日常-战斗-地域鬼王", "日常-战斗-个人突破",
-    "战斗-魂土", "战斗-困28", "战斗-活动",
-]
 
 
 def parse_time(s):

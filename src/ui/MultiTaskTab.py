@@ -10,14 +10,9 @@ from qfluentwidgets import (
 
 from ok.gui.widget.CustomTab import CustomTab
 from ok.util.config import Config
+from src.globals import ALL_TASK_NAMES
 
 CFG_FILE = os.path.join(Config.config_folder, "TaskScheduler.json")
-
-ALL_TASKS = [
-    "日常-签到", "日常-式神委派", "日常-结界",
-    "日常-战斗-地域鬼王", "日常-战斗-个人突破",
-    "战斗-魂土", "战斗-困28", "战斗-活动",
-]
 
 
 def _load_json(path, default):
@@ -38,14 +33,14 @@ def _save_json(path, data):
 
 def get_enabled_in_order():
     """返回按优先级排序的已启用任务列表。"""
-    cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASKS[:]})
-    enabled = cfg.get("任务列表", ALL_TASKS[:])
+    cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+    enabled = cfg.get("任务列表", ALL_TASK_NAMES[:])
     order = cfg.get("任务优先级", {})
 
     tasks = []
     for name in enabled:
         pri = int(order.get(name, 1)) if order.get(name, "1") else 1
-        default_idx = ALL_TASKS.index(name) if name in ALL_TASKS else 99
+        default_idx = ALL_TASK_NAMES.index(name) if name in ALL_TASK_NAMES else 99
         tasks.append((pri, default_idx, name))
 
     tasks.sort(key=lambda x: (x[0], x[1]))
@@ -71,21 +66,30 @@ class MultiTaskTab(CustomTab):
         self.add_widget(BodyLabel("勾选任务 → 设优先级 → 一键启动"))
         self.add_widget(SubtitleLabel("任务列表"))
 
-        # ── 多选框 ──
-        cb_row = QWidget()
-        cb_layout = QHBoxLayout(cb_row)
-        cb_layout.setContentsMargins(0, 4, 0, 0)
-        cb_layout.setSpacing(12)
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASKS[:]})
-        checked = cfg.get("任务列表", ALL_TASKS[:])
-        for name in ALL_TASKS:
-            cb = CheckBox(name)
-            cb.setChecked(name in checked)
-            cb.stateChanged.connect(self._on_check)
-            self._cbs[name] = cb
-            cb_layout.addWidget(cb)
-        cb_layout.addStretch()
-        self.add_widget(cb_row)
+        # ── 多选框（分组）──
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+        checked = cfg.get("任务列表", ALL_TASK_NAMES[:])
+
+        groups = [
+            [n for n in ALL_TASK_NAMES if n.startswith("日常-") and "战斗" not in n],
+            [n for n in ALL_TASK_NAMES if n.startswith("日常-战斗")],
+            [n for n in ALL_TASK_NAMES if n.startswith("战斗-")],
+        ]
+        for g_names in groups:
+            if not g_names:
+                continue
+            cb_row = QWidget()
+            cb_layout = QHBoxLayout(cb_row)
+            cb_layout.setContentsMargins(0, 2, 0, 2)
+            cb_layout.setSpacing(12)
+            for name in g_names:
+                cb = CheckBox(name)
+                cb.setChecked(name in checked)
+                cb.stateChanged.connect(self._on_check)
+                self._cbs[name] = cb
+                cb_layout.addWidget(cb)
+            cb_layout.addStretch()
+            self.add_widget(cb_row)
 
         # ── 优先级输入区 ──
         self.add_widget(SubtitleLabel("优先级（数字越小越先，默认 1）"))
@@ -108,7 +112,7 @@ class MultiTaskTab(CustomTab):
         self.add_widget(btn_row)
 
     def _on_check(self):
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASKS[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
         cfg["任务列表"] = [n for n, cb in self._cbs.items() if cb.isChecked()]
         _save_json(CFG_FILE, cfg)
         self._refresh()
@@ -118,7 +122,7 @@ class MultiTaskTab(CustomTab):
             val = int(text.strip() or 1)
         except ValueError:
             val = 1
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASKS[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
         pri = cfg.get("任务优先级", {})
         pri[name] = str(val)
         cfg["任务优先级"] = pri
@@ -133,11 +137,11 @@ class MultiTaskTab(CustomTab):
                 item.widget().deleteLater()
 
         self._priorities.clear()
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASKS[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
         priority = cfg.get("任务优先级", {})
-        checked = cfg.get("任务列表", ALL_TASKS[:])
+        checked = cfg.get("任务列表", ALL_TASK_NAMES[:])
 
-        for name in ALL_TASKS:
+        for name in ALL_TASK_NAMES:
             if name not in checked:
                 continue
             row = QWidget()
@@ -146,13 +150,13 @@ class MultiTaskTab(CustomTab):
             rl.setSpacing(8)
 
             label = BodyLabel(name)
-            label.setFixedWidth(72)
+            label.setFixedWidth(160)
             rl.addWidget(label)
 
             le = LineEdit()
             le.setText(str(priority.get(name, "1")))
             le.setPlaceholderText("1")
-            le.setFixedWidth(50)
+            le.setFixedWidth(60)
             le.textChanged.connect(lambda t, n=name: self._on_priority_change(n, t))
             self._priorities[name] = le
             rl.addWidget(le)
@@ -162,10 +166,11 @@ class MultiTaskTab(CustomTab):
 
     def _on_start(self):
         from ok import og
-        from src.tasks.TaskScheduler import TaskScheduler
-        t = TaskScheduler(og.executor, og.app)
-        t.after_init(executor=og.executor, scene=og.app.scene)
-        t.run_safe()
+        # 找到 TaskScheduler 在 onetime_tasks 中的索引，走框架标准启动流程
+        for i, t in enumerate(og.executor.onetime_tasks):
+            if t.__class__.__name__ == 'TaskScheduler':
+                og.app.start_controller.start(i)
+                return
 
     @property
     def name(self):

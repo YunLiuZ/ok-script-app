@@ -18,7 +18,7 @@ class ExplorationTask(BaseBattleTask):
         self.config_description.update({
             "UserStatus": "队伍角色：队长创建的队伍，队员加入队伍，单人独自挑战。",
             "Friend 1": "邀请几位就填几位，不邀请请不要填写",
-            "Lock Team Enable":"困28的锁阵容为自动轮换，在使用之前请务必设置好自动轮换，且务必打开"
+            "Lock Team Enable":"困28的锁阵容为自动轮换，在使用之前请务必设置好自动轮换，任务会自动打开"
         })
         self.config_type.update({
             "UserStatus": {
@@ -73,7 +73,6 @@ class ExplorationTask(BaseBattleTask):
                                         box=self.B('Home_Explore'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
-        self.info_set("步骤", "进入探索页面")
         if not (text:=self.ocr_and_click(['二十八'],1,box=self.box_of_screen(0.82, 0.62, 0.92, 0.68))):
             print(text)
             self.log_info('找不到二十八')

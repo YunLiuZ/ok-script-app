@@ -1,47 +1,24 @@
-"""任务编排器：勾选任务，数字越小越先执行（1-30，不可重复）。"""
+"""任务编排器：勾选任务后在「一键多任务」设优先级。"""
+from src.globals import ALL_TASK_NAMES, TASK_MAP as TM
 from src.tasks.BaseOmjTask import BaseOmjTask
-from src.tasks.DailyTask import DailyTask
-from src.tasks.ExplorationTask import ExplorationTask
-from src.tasks.DelegationTask import DelegationTask
-from src.tasks.SoulZonesTask import SoulZonesTask
-from src.tasks.AreaBossTask import AreaBossTask
-from src.tasks.RealmRaidTask import RealmRaidTask
-from src.tasks.GameEventsBattleTask import GameEventsBattleTask
-from src.tasks.UtilizeTask import UtilizeTask
 
 
 class TaskScheduler(BaseOmjTask):
 
-    TASK_MAP = {
-        "日常-签到": DailyTask,
-        "日常-式神委派": DelegationTask,
-        "日常-结界": UtilizeTask,
-        "日常-战斗-地域鬼王": AreaBossTask,
-        "日常-战斗-个人突破": RealmRaidTask,
-        "战斗-魂土": SoulZonesTask,
-        "战斗-困28": ExplorationTask,
-        "战斗-活动": GameEventsBattleTask,
-    }
-
-    ALL_TASKS = list(TASK_MAP.keys())
-
-    # 默认顺序
-    DEFAULT_ORDER = {name: i + 1 for i, name in enumerate(ALL_TASKS)}
+    TASK_MAP = TM
+    ALL_TASKS = ALL_TASK_NAMES
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "任务编排"
-        self.description = "按数字顺序执行日常任务（数字越小越先执行）"
+        self.description = "在「一键多任务」中勾选任务、设置优先级后启动"
 
         self.default_config.update({
             "任务列表": self.ALL_TASKS.copy(),
         })
-        # 每个任务的顺序数字（1-30）
-        for name in self.ALL_TASKS:
-            self.default_config[f"{name}顺序"] = self.DEFAULT_ORDER[name]
 
         self.config_description.update({
-            "任务列表": "勾选要执行的任务。",
+            "任务列表": "勾选要执行的任务。优先级在「一键多任务」Tab 中设置。",
         })
 
         self.config_type.update({

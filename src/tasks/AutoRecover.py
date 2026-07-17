@@ -83,7 +83,7 @@ class AutoRecover(TriggerTask, BaseOmjTask):
         return True
 
     def _retry_task(self, name):
-        from src.tasks.AutoScheduleRunner import TASK_MAP
+        from src.globals import TASK_MAP
         task_cls = TASK_MAP.get(name)
         if task_cls is None:
             self.log_warning(f"未找到任务: {name}")

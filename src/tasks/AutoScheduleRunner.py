@@ -7,28 +7,7 @@ from datetime import datetime, timedelta
 
 from ok import TriggerTask
 from ok.util.config import Config
-
-# ---- 任务名 → 任务类 ----
-from src.tasks.DailyTask import DailyTask
-from src.tasks.ExplorationTask import ExplorationTask
-from src.tasks.DelegationTask import DelegationTask
-from src.tasks.SoulZonesTask import SoulZonesTask
-from src.tasks.AreaBossTask import AreaBossTask
-from src.tasks.RealmRaidTask import RealmRaidTask
-from src.tasks.GameEventsBattleTask import GameEventsBattleTask
-from src.tasks.UtilizeTask import UtilizeTask
-
-TASK_MAP = {
-    "日常-签到": DailyTask,
-    "日常-式神委派": DelegationTask,
-    "日常-结界": UtilizeTask,
-    "日常-战斗-地域鬼王": AreaBossTask,
-    "日常-战斗-个人突破": RealmRaidTask,
-    "战斗-魂土": SoulZonesTask,
-    "战斗-困28": ExplorationTask,
-    "战斗-活动": GameEventsBattleTask,
-}
-ALL_TASK_NAMES = list(TASK_MAP.keys())
+from src.globals import ALL_TASK_NAMES, TASK_MAP
 
 
 # ---- 文件路径 ----

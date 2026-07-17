@@ -7,42 +7,17 @@ class DailyTask(BaseOmjTask):
         super().__init__(*args, **kwargs)
         self.name = "日常-签到"
         self.description = "签到，黑蛋"
-
-        self.default_config.update({
-            "Orchids": True,
-            "Friend 1": "",
-        })
-        self.config_description.update({
-            "Friend 1": "在使用之前，请给好友发个消息，保证好友在最近列表，同心之兰队友",
-        })
-
     def run(self):
         if not self.logged_in:
             return False
-        # if self.config["Orchids"]:
-        #     self.Orchids()
         self.in_home_and_back()
         if not self.Sign():
             return False
         if not self.Gift_Shop_Sign():
             return False
         return True
-
-
-
-        # if self.state.is_done_today("daily_sign"):
-        #     self.log_info(f"今日已签到 ({self.state.done_at('daily_sign')})，跳过")
-        # else:
-        #     self.Sign()
-        #
-        # if self.state.is_done_today("gift_shop"):
-        #     self.log_info(f"礼包屋今日已签到 ({self.state.done_at('gift_shop')})，跳过")
-        # else:
-        #     self.Gift_Shop_Sign()
-
     def Sign(self):
         """签到流程"""
-        self.in_home_and_back()
 
         # 点击签到入口
         if not self.wait_click_feature('Home_Sign', threshold=0.7,
@@ -157,26 +132,7 @@ class DailyTask(BaseOmjTask):
         # self.state.mark_done("gift_shop")  # 测试期间注释
         self.log_info("礼包屋签到完成", notify=True)
 
-    def Orchids(self):
-        self.in_home_and_back()
-        self.click_nth('y', 0.89, self.rows, 8, "预设组")
 
-        if not (text := self.ocr_and_click(['最近'], 1,
-                                             box=self.box_of_screen(0.20, 0.13, 0.27, 0.19))):
-            self.log_info('找不到最近页面')
-        if not (text := self.ocr_and_click(['最近'], 1,
-                                             box=self.box_of_screen(0.20, 0.13, 0.27, 0.19))):
-            self.log_info('找不到最近页面')
-        if not (text := self.ocr_and_click(self.config["Friend 1"], 1,
-                                             box=self.box_of_screen(0.16, 0.22, 0.28, 0.82))):
-            self.log_info('找不到好友')
-        if not self.wait_click_feature('Orchids', threshold=0.7,
-                                        box=self.box_of_screen(0.8383, 0.141, 0.8852, 0.2313),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
-            self.log_warning("找不到同心之兰")
-        if not (text := self.ocr_and_click("30", 1,
-                                             box=self.box_of_screen(0.66, 0.85, 0.74, 0.91))):
-            self.log_info('找不到赠送')
 
     # ---------- 测试辅助方法 ----------
 
