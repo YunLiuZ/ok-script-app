@@ -53,9 +53,24 @@ class BaseOmjTask(BaseTask):
     @pending_tasks.setter
     def pending_tasks(self, value):
         og.my_app.pending_tasks = value
-
+# endregion
     def run_safe(self):
         """包装 run()：管理 fail_count + onetime_failed + failed_task。"""
+        if not self.logged_in:
+                if not self.executor.device_manager.device_connected():
+                    self.log_info("游戏未启动，尝试启动...")
+                    if not self.start_game():
+                        self.log_warning("请手动启动游戏")
+                    return False
+                elif self.wait_until(
+                        condition=lambda:self.base_scene(),
+                                            time_out=120,pre_action=lambda : self.log_page(),raise_if_not_found=False
+                    ):
+                        self.logged_in = True
+                        self.log_info("游戏启动成功")    
+                else:
+                    self.log_info("游戏启动失败")
+                    return False
         try:
             result = self.run()
             if result is False:
@@ -74,7 +89,7 @@ class BaseOmjTask(BaseTask):
             self.log_error(f"[{self.name}] 异常: {e}，fail_count={og.my_app.fail_count.get(self.name, 0)}")
             return False
 
-# endregion
+
 
 # region Logged
     def wait_home(self):
@@ -145,10 +160,40 @@ class BaseOmjTask(BaseTask):
             if re.search('其他设备', msg):
                 self.log_info("检测到其他设备登录，重启游戏")
                 return self.restart_game()
-
+    def start_game(self):
+        pkg = self.executor.config.get('adb', {}).get('packages', [''])[0]
+        self.log_info("→ 启动游戏...")
+        try:
+            self.adb_shell(
+                f'monkey -p {pkg} -c android.intent.category.LAUNCHER 1',
+                timeout=10,
+            )
+        except Exception as e:
+            self.log_error(f"启动游戏失败: {e}")
+            return False
+        self.log_info("→ 等待游戏加载...")
+        if self.wait_until(
+            condition=lambda:self.base_scene(),
+                                time_out=120,pre_action=lambda : self.log_page(),raise_if_not_found=False
+        ):
+            self.logged_in = True
+            self.log_info("游戏启动成功")
+            return True
+        self.log_info("游戏启动失败")
+        return False
+    def _clear_flags(self):
+        self.onetime_failed = False
+        self.schedule_failed = False
+        self.failed_task = ""
+        
+    
     def restart_game(self, wait_load=True):
         """通过 ADB 强制停止并重新启动游戏。返回 True 表示重启成功。"""
         pkg = self.executor.config.get('adb', {}).get('packages', [''])[0]
+        print("1111111111111111111111111111111111")
+        print(pkg)
+        self.log_info({pkg})
+        print("1111111111111111111111111111111111")
         if not pkg:
             self.log_error("未配置 ADB packages，无法重启游戏")
             return False
@@ -205,10 +250,6 @@ class BaseOmjTask(BaseTask):
                 return self.restart_game()
 
         return False
-
-
-
-
 
 # endregion
 #region Home

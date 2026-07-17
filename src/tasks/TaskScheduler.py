@@ -36,22 +36,17 @@ class TaskScheduler(BaseOmjTask):
         from src.ui.MultiTaskTab import get_enabled_in_order
         ordered = get_enabled_in_order()
 
+        self._clear_flags()
+
         for i, name in enumerate(ordered, 1):
             task_cls = self.TASK_MAP.get(name)
             if task_cls is None:
                 self.log_warning(f"未找到任务: {name}")
                 continue
-
+            
             self.log_info(f"--- [{i}] 开始: {name} ---")
             t = task_cls(self.executor, self.scene)
             t.after_init(executor=self.executor, scene=self.scene)
-
-            if self.logged_in is False:
-                self.log_info("没登陆等待登录")
-                if not self.wait_until(condition=lambda:self.base_scene(),
-                                time_out=120,pre_action=lambda : self.log_page(),raise_if_not_found=False):
-                    self.log_warning("登录失败，请检查环境")
-                    return False
 
             ok = t.run_safe()
             self.log_info(f"--- [{i}] 结束: {name} ---")

@@ -38,8 +38,6 @@ class DelegationTask(BaseOmjTask):
         })
 
     def run(self):
-        if not self.logged_in:
-            return False
         self.in_home_and_back()
         if not self.Delegation_page():
             self.log_warning("Delegation_page 失败")

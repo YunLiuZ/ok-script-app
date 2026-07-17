@@ -101,13 +101,16 @@ class MultiTaskTab(CustomTab):
 
         self.vBoxLayout.addStretch()
 
-        # ── 启动按钮 ──（固定在底部）
+        # ── 启动 / 停止按钮 ──（固定在底部）
         btn_row = QWidget()
         bl = QHBoxLayout(btn_row)
         bl.setContentsMargins(0, 12, 0, 0)
         self._start_btn = PrimaryPushButton(FluentIcon.PLAY, "一键启动")
         self._start_btn.clicked.connect(self._on_start)
         bl.addWidget(self._start_btn)
+        self._stop_btn = PrimaryPushButton(FluentIcon.CLOSE, "一键停止")
+        self._stop_btn.clicked.connect(self._on_stop)
+        bl.addWidget(self._stop_btn)
         bl.addStretch()
         self.add_widget(btn_row)
 
@@ -171,6 +174,10 @@ class MultiTaskTab(CustomTab):
             if t.__class__.__name__ == 'TaskScheduler':
                 og.app.start_controller.start(i)
                 return
+
+    def _on_stop(self):
+        from ok import og
+        og.executor.stop_current_task()
 
     @property
     def name(self):

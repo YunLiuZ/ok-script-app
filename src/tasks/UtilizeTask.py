@@ -39,8 +39,6 @@ class UtilizeTask(BaseOmjTask):
         self.kekkai_expire_time = None  # 格式: "HH:MM:SS"
 
     def run(self):
-        if not self.logged_in:
-            return False
         if self.in_home_and_back():
             self.Utilize_page()
             if self.config.get("KekkaiActivation"):

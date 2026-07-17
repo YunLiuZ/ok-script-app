@@ -11,7 +11,7 @@ class AutoRecover(TriggerTask, BaseOmjTask):
 
     def on_create(self):
         super().on_create()
-        self._enabled = True
+        self._enabled = False
 
     def run(self):
         need = self.onetime_failed or self.schedule_failed
@@ -92,7 +92,4 @@ class AutoRecover(TriggerTask, BaseOmjTask):
         t.after_init(executor=self.executor, scene=self.scene)
         return t.run_safe()
 
-    def _clear_flags(self):
-        self.onetime_failed = False
-        self.schedule_failed = False
-        self.failed_task = ""
+    

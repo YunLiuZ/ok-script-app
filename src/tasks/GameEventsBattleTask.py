@@ -21,8 +21,6 @@ class GameEventsBattleTask(BaseBattleTask):
         })
 
     def run(self):
-        if not self.logged_in:
-            return False
         # self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
         # self.reset()
         self.Battle_page()

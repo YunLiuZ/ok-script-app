@@ -8,8 +8,6 @@ class DailyTask(BaseOmjTask):
         self.name = "日常-签到"
         self.description = "签到，黑蛋"
     def run(self):
-        if not self.logged_in:
-            return False
         self.in_home_and_back()
         if not self.Sign():
             return False

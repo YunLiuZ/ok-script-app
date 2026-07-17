@@ -10,7 +10,7 @@ class OrchidsTask(BaseOmjTask):
         self.description = "好友互送礼物30勾玉，使用前请至少保证有30勾玉"
 
         self.default_config.update({
-            "Frist": True,
+            "First": True,
             "Friend 1": "",
         })
         self.config_description.update({
@@ -18,8 +18,6 @@ class OrchidsTask(BaseOmjTask):
         })
 
     def run(self):
-        if not self.logged_in:
-            return False
         self.in_home_and_back()
         if self.config["First"]:
             self.log_info("，开始邀请")

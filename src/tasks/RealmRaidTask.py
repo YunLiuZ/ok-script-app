@@ -17,8 +17,6 @@ class RealmRaidTask(BaseBattleTask):
             "AttackNumber":"对于结界突破无需填写",
         })
     def run(self):
-        if not self.logged_in:
-            return False
         self.in_home_and_back()
         if self.config["Preset Enable"]:
             group, team = self._parse_preset()
