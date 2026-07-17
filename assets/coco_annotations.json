@@ -44,7 +44,7 @@
         },
         {
             "id": 9,
-            "file_name": "images/0.png",
+            "file_name": "images/2.png",
             "width": 2560,
             "height": 1440
         },
@@ -254,13 +254,25 @@
         },
         {
             "id": 54,
-            "file_name": "images/4.png",
+            "file_name": "images/0.png",
             "width": 2560,
             "height": 1440
         },
         {
             "id": 55,
             "file_name": "images/2.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 56,
+            "file_name": "images/1.png",
+            "width": 2560,
+            "height": 1440
+        },
+        {
+            "id": 57,
+            "file_name": "images/0.png",
             "width": 2560,
             "height": 1440
         }
@@ -1260,11 +1272,76 @@
             "category_id": 77,
             "bbox": [
                 2127,
-                1248,
+                1246,
                 138,
                 108
             ],
             "area": 14904,
+            "iscrowd": 0
+        },
+        {
+            "id": 78,
+            "image_id": 56,
+            "category_id": 80,
+            "bbox": [
+                2221,
+                54,
+                84,
+                72
+            ],
+            "area": 6048,
+            "iscrowd": 0
+        },
+        {
+            "id": 79,
+            "image_id": 57,
+            "category_id": 79,
+            "bbox": [
+                1031,
+                941,
+                106,
+                79
+            ],
+            "area": 8374,
+            "iscrowd": 0
+        },
+        {
+            "id": 80,
+            "image_id": 3,
+            "category_id": 78,
+            "bbox": [
+                868,
+                1237,
+                90,
+                88
+            ],
+            "area": 7920,
+            "iscrowd": 0
+        },
+        {
+            "id": 81,
+            "image_id": 3,
+            "category_id": 81,
+            "bbox": [
+                176,
+                1214,
+                109,
+                99
+            ],
+            "area": 10791,
+            "iscrowd": 0
+        },
+        {
+            "id": 82,
+            "image_id": 3,
+            "category_id": 82,
+            "bbox": [
+                1530,
+                1230,
+                133,
+                95
+            ],
+            "area": 12635,
             "iscrowd": 0
         }
     ],
@@ -1652,6 +1729,31 @@
         {
             "id": 77,
             "name": "Utilize_Kekkai",
+            "supercategory": ""
+        },
+        {
+            "id": 78,
+            "name": "Home_Team",
+            "supercategory": ""
+        },
+        {
+            "id": 79,
+            "name": "Exploration_Finish_Treasure",
+            "supercategory": ""
+        },
+        {
+            "id": 80,
+            "name": "Areaboss_Filter",
+            "supercategory": ""
+        },
+        {
+            "id": 81,
+            "name": "Home_Collection",
+            "supercategory": ""
+        },
+        {
+            "id": 82,
+            "name": "Home_Talismanpass",
             "supercategory": ""
         }
     ]

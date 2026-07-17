@@ -54,9 +54,14 @@ class AreaBossTask(BaseBattleTask):
 
         
         while(self.count <= self.config["AttackNumber"]):
-            
-            if text:=self.ocr_and_click(['筛','选'],0.5,box=self.B('Areaboss_Filter')):
+            if self.wait_click_feature('AreaBoss_Filter', threshold=0.7,
+                                        box=self.B('AreaBoss_Filter'),
+                                        raise_if_not_found=False, time_out=5, after_sleep=1):
+                self.log_info("探索 AreaBoss")
+                self.info_set("步骤", "进入探索页面")
+            elif text:=self.ocr_and_click(['筛','选'],time_out=5,box=self.B('Areaboss_Filter')):
                 print(text)
+
             if text:=self.ocr_and_click(['收','藏'],0.5,box=self.B('Areaboss_Filter_Page')):
                 print(text)
             
