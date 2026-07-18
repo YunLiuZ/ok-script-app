@@ -166,12 +166,11 @@ class BaseBattleTask(BaseOmjTask):
 
         def check():
             if res := self.find_one('Battle_Success', threshold=0.7,
-                                        box=self.B(success_box)):
-
+                                        box=self.B('success_box')):
                 self.click(res)
                 self.sleep(1)
                 if res1 := self.find_one('Battle_Success', threshold=0.7,
-                                          box=self.B(success_box)):
+                                          box=self.B('success_box')):
                     self.click(res1)
                     self.log_info("第一次没点到")
                 else:

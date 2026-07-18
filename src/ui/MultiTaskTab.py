@@ -33,13 +33,13 @@ def _save_json(path, data):
 
 def get_enabled_in_order():
     """返回按优先级排序的已启用任务列表。"""
-    cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+    cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:], "任务优先级": {}})
     enabled = cfg.get("任务列表", ALL_TASK_NAMES[:])
     order = cfg.get("任务优先级", {})
 
     tasks = []
     for name in enabled:
-        pri = int(order.get(name, 1)) if order.get(name, "1") else 1
+        pri = int(order.get(name, 10)) if order.get(name, "10") else 10
         default_idx = ALL_TASK_NAMES.index(name) if name in ALL_TASK_NAMES else 99
         tasks.append((pri, default_idx, name))
 
@@ -67,7 +67,7 @@ class MultiTaskTab(CustomTab):
         self.add_widget(SubtitleLabel("任务列表"))
 
         # ── 多选框（分组）──
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:], "任务优先级": {}})
         checked = cfg.get("任务列表", ALL_TASK_NAMES[:])
 
         groups = [
@@ -115,7 +115,7 @@ class MultiTaskTab(CustomTab):
         self.add_widget(btn_row)
 
     def _on_check(self):
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:], "任务优先级": {}})
         cfg["任务列表"] = [n for n, cb in self._cbs.items() if cb.isChecked()]
         _save_json(CFG_FILE, cfg)
         self._refresh()
@@ -125,7 +125,7 @@ class MultiTaskTab(CustomTab):
             val = int(text.strip() or 1)
         except ValueError:
             val = 1
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:], "任务优先级": {}})
         pri = cfg.get("任务优先级", {})
         pri[name] = str(val)
         cfg["任务优先级"] = pri
@@ -140,7 +140,7 @@ class MultiTaskTab(CustomTab):
                 item.widget().deleteLater()
 
         self._priorities.clear()
-        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:]})
+        cfg = _load_json(CFG_FILE, {"任务列表": ALL_TASK_NAMES[:], "任务优先级": {}})
         priority = cfg.get("任务优先级", {})
         checked = cfg.get("任务列表", ALL_TASK_NAMES[:])
 

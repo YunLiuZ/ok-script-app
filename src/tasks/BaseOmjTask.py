@@ -57,20 +57,26 @@ class BaseOmjTask(BaseTask):
     def run_safe(self):
         """包装 run()：管理 fail_count + onetime_failed + failed_task。"""
         if not self.logged_in:
-                if not self.executor.device_manager.device_connected():
-                    self.log_info("游戏未启动，尝试启动...")
-                    if not self.start_game():
-                        self.log_warning("请手动启动游戏")
-                    return False
-                elif self.wait_until(
-                        condition=lambda:self.base_scene(),
-                                            time_out=120,pre_action=lambda : self.log_page(),raise_if_not_found=False
-                    ):
-                        self.logged_in = True
-                        self.log_info("游戏启动成功")    
-                else:
-                    self.log_info("游戏启动失败")
-                    return False
+            if not self.executor.device_manager.device_connected():
+                self.log_info("游戏未启动，尝试启动...")
+                if not self.start_game():
+                    self.log_warning("请手动启动游戏")
+                return False
+            elif self.wait_until(
+                    condition=lambda:self.base_scene(),
+                                        time_out=120,pre_action=lambda : self.log_page(),raise_if_not_found=False
+                ):
+                    self.logged_in = True
+                    self.log_info("游戏启动成功")    
+            else:
+                self.log_info("游戏启动失败")
+                return False
+        elif self.unexpected_error():
+            self.log_info("出现意外错误")
+        elif btns := self.find_feature('Daily_New_Cancel', box=self.B('Cancel_Box'), threshold=0.7):
+                self.click(btns[0], after_sleep=0.2)
+                self.log_info('关闭弹窗1')
+        
         try:
             result = self.run()
             if result is False:

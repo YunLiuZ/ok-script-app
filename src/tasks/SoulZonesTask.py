@@ -213,11 +213,6 @@ class SoulZonesTask(BaseBattleTask):
         self.count = 1
 
         while(self.count <= self.config["AttackNumber"]):
-            # if not self.wait_click_feature('Home_Explore', threshold=0.7, #TIAOZHAN
-            #                             box=self.box_of_screen(0.91 ,0.81 ,1 , 1),
-            #                             raise_if_not_found=False, time_out=25, after_sleep=1):
-            #     self.log_warning("找不到tiaozhan")
-            # self.info_set("步骤", "进入tiaozhan")
              for i, f in enumerate(targets):
                 if i == 0:
                     ok = self.ocr_and_click(f, time_out=30,box=self.box_of_screen (0.43, 0.15, 0.53, 0.19))
@@ -305,6 +300,10 @@ class SoulZonesTask(BaseBattleTask):
 
     def Member_battle(self):
         self.count = 1
+        if lock_res:=self.Lock_team((0.07,0.87,0.12,0.97)):
+            self.log_info("锁")
+        else:
+            self.log_info("没锁")
         while self.count <= self.config["AttackNumber"] :
             if not self.Find_finish(self.config["BattleTime"]):
                 self.Back_Home()
