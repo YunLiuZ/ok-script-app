@@ -13,6 +13,12 @@ class BaseOmjTask(BaseTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.rows = {1: 0.09, 2: 0.18, 3: 0.27, 4: 0.35, 5: 0.42, 6: 0.53, 7: 0.62,8: 0.71, 9: 0.80, 10: 0.88}#0.89
+        self.default_config.update({
+            "角色": "",
+        })
+        self.config_description.update({
+            "角色": "当前控制哪个角色，帮助多开时识别",
+        })
 # region global
     @property
     def logged_in(self):
@@ -94,8 +100,6 @@ class BaseOmjTask(BaseTask):
             self.failed_task = self.name
             self.log_error(f"[{self.name}] 异常: {e}，fail_count={og.my_app.fail_count.get(self.name, 0)}")
             return False
-
-
 
 # region Logged
     def wait_home(self):

@@ -15,7 +15,7 @@ class AutoLoginTask(TriggerTask, BaseOmjTask):
 
     def on_create(self):
         super().on_create()
-        self._enabled = True
+        self._enabled = False
         self.logged_in = False  # 每次启动强制重置
         self.recovery_needed = False
 

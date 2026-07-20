@@ -39,6 +39,11 @@ class RealmRaidTask(BaseBattleTask):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
 
+        if self.open_buff(self.config.get("加成选择", [])):
+            self.log_info("open buff")
+        else:
+            self.log_info("not open buff")
+
         if self.wait_click_feature('Exploration_RealmRaid', threshold=0.7,
                                         box=self.B('bottom'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):

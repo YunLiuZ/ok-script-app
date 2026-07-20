@@ -38,6 +38,7 @@ class SoulZonesTask(BaseBattleTask):
 
     def run(self):
         self.in_home_and_back()
+
         if self.config["Preset Enable"]:
             self._switch_preset_by_soul_zone()
 
@@ -63,6 +64,17 @@ class SoulZonesTask(BaseBattleTask):
             return True
 
         else:  # 队员
+            if not self.wait_click_feature('Home_Explore', threshold=0.7,
+                                           box=self.B('Home_Explore'),
+                                           raise_if_not_found=False, time_out=3, after_sleep=1):
+                self.log_warning("找不到探索 Home_Sign")
+            self.info_set("步骤", "进入探索页面")
+
+            if self.open_buff(self.config.get("加成选择", [])):
+                self.log_info("open buff")
+            else:
+                self.log_info("not open buff")
+
             self.log_info("等待邀请")
             if self.wait_click_feature('Invitation_Confirm', threshold=0.7,
                                         box=self.B('Invitation_Confirm'),
@@ -105,6 +117,12 @@ class SoulZonesTask(BaseBattleTask):
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
+
+        if self.open_buff(self.config.get("加成选择", [])):
+            self.log_info("open buff")
+        else:
+            self.log_info("not open buff")
+
         if self.wait_click_feature('Exploration_Soul', threshold=0.7,
                                         box=self.B('bottom'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):

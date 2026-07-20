@@ -27,6 +27,10 @@ key_config_option = ConfigOption('Game Hotkey Config', { #全局配置示例
     'Tool Key': 't',
 }, description='In Game Hotkey for Skills')
 
+character_config = ConfigOption('角色信息', {
+    '角色': '',
+}, description='当前控制哪个角色，所有任务共用。设置一次即可。')
+
 
 def make_bottom_right_black(frame): #可选. 某些游戏截图时遮挡UID使用
     """
@@ -67,7 +71,7 @@ config = {
     'debug': False,  # Optional, default: False
     'use_gui': True, # 目前只支持True
     'config_folder': f'configs{_instance_suffix}',  # 多开时自动使用子目录（如 configs/instance_2）
-    'global_configs': [key_config_option],
+    'global_configs': [key_config_option, character_config],
     'screenshot_processor': make_bottom_right_black, # 在截图的时候对frame进行修改, 可选
     'gui_icon': 'icons/icon.png', #窗口图标, 最好不需要修改文件名
     'wait_until_before_delay': 0,

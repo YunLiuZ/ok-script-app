@@ -1,26 +1,39 @@
+import re
+
 from src.tasks.BaseOmjTask import BaseOmjTask
 
 
 class BaseBattleTask(BaseOmjTask):
     """战斗任务基类：统一管理阵容锁定、预设队伍切换等战斗配置。"""
 
+    BUFF_NAMES = ["觉醒", "御魂", "金币增加100", "经验增加100", "经验增加50"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.default_config.update({
-
             "Lock Team Enable": True,
             "Preset Enable": False,
             "Preset Team": "1,1",
-            "AttackNumber":10,
+            "Team Name":"1,1,御魂",
             "BattleTime": 300,
+            "加成选择": [],
         })
 
         self.config_description.update({
             "Lock Team Enable": "开启后每次战斗前锁定当前阵容，防止误操作切换队伍。",
             "Preset Enable": "开启后战斗前自动切换到指定的预设队伍。",
-            "Preset Team": "预设队伍编号，格式：组,队  例如 1,5 表示第1组第5个队伍。",
-            "BattleTime": "通过时间 一般情况下不用修改"
+            "Preset Team": "预设队伍编号，格式：组,队  例如 1,5 表示第1组第4个队伍，最大支持7和4。",
+            "Team Team": "预设组，队伍名，理论上可以让队伍选择更多，但是推荐尽量用上面那个，因为更稳定",
+            "BattleTime": "通过时间 一般情况下不用修改",
+            "加成选择": "选择需要打开的加成，不选则不开任何加成。",
+        })
+
+        self.config_type.update({
+            "加成选择": {
+                "type": "multi_selection",
+                "options": self.BUFF_NAMES.copy(),
+            },
         })
 
     # ---------- 预设队伍解析 ----------
@@ -33,22 +46,62 @@ class BaseBattleTask(BaseOmjTask):
             return int(parts[0].strip()), int(parts[1].strip())
         return 1, 1
 
-    def SwitchSoul_by_name(self):
-        self.In_Home()
-        self.ocr_and_click('式神录',box=self.B("Home_Shikigami_Chronicles"))
-        self.wait_click_ocr(match='预设',
-                            box=self.get_box_by_name('Home_Shikigami_Presets'))
-        self.wait_click_ocr(match=self.config["Preset Group"],
-                            box=self.get_box_by_name('Home_Shikigami_Group'))
-        texts = self.ocr(match=self.config["Preset Team"],
-                         box=self.get_box_by_name('Home_Shikigami_Group_Name'))
-        if texts:
-            h = self.frame.shape[0]
-            center_y = texts[0].y + texts[0].height / 2
-            rel_y = center_y / h
-            self.click_relative(0.77, rel_y)
-            self.log_info(f"点击预设队伍 {self.config['Preset Team']} at (0.77, {rel_y:.3f})")
-    
+    def SwitchSoul_by_name(self,group:int,team:int,team_name:str):
+        if self.wait_click_feature('Home_Shikigami_Chronicles', threshold=0.7,
+                                   box=self.B('bottom'),
+                                   raise_if_not_found=False, time_out=3, after_sleep=1):
+            self.log_info("Home_Shikigami_Chronicles")
+            self.info_set("步骤", "进入Home_Shikigami_Chronicles")
+        elif text := self.ocr_and_click(['式神'], 1, box=self.B('Home_Shikigami_Chronicles')):
+            print(text)
+        else:
+            self.log_info('找不到Home_Shikigami_Chronicles')
+            return False
+
+        if self.wait_click_ocr(match='预设',
+                               box=self.B('Home_Shikigami_Presets'), time_out=3, after_sleep=1):
+            self._swipe(0.91, 0.22, 0.91, 0.77, 0.5)
+            self.sleep(0.5)
+
+        group_rows = {1: 0.17, 2: 0.27, 3: 0.35, 4: 0.47, 5: 0.56, 6: 0.67, 7: 0.75}
+        self.click_nth('x', 0.91, group_rows, group, "预设组")
+
+        self._swipe(0.59, 0.19, 0.59, 0.81, 0.2)  # 从第一个开始
+        self._swipe(0.59, 0.19, 0.59, 0.81, 0.2)  # 从第一个开始
+        for i in range(2):
+            self._swipe(0.59, 0.81, 0.59, 0.19, 1)  # 从第一个开始
+            if res := self.ocr(match=re.compile(self.config["Team_Name"]),
+                               box=self.box_of_screen(0.4, 0.18, 0.65, 0.9)):
+                # 只有一个关键词，取第一个匹配结果，算 y 中心，从右列点击
+                h = self.frame.shape[0]
+                match = res[0]
+                center_y = (match.y + match.height / 2) / h
+                self.click_relative(0.77, center_y)
+                self.sleep(0.5)
+                if text := self.ocr('确认', box=self.box_of_screen(0.50, 0.53, 0.66, 0.63)):
+                    self.click(text[0], after_sleep=0.5)
+                if text := self.ocr('确认', box=self.box_of_screen(0.50, 0.53, 0.66, 0.63)):
+                    self.click(text[0], after_sleep=0.5)
+                break
+            elif i == 1:
+                self.log_warning("换御魂失败")
+                return  False
+        if not self.wait_click_feature('Back', threshold=0.7,
+                                       box=self.B('Back'),
+                                       raise_if_not_found=False, time_out=3, after_sleep=1):
+            self.log_info('回家')
+            return True
+        else:
+            self.log_info('找不到Home_Shikigami_Chronicles')
+            self.in_home_and_back()
+
+
+
+
+
+
+
+
     def SwitchSoul_by_num(self,group:int,team:int):
         """按编号切换预设队伍（从 config 读取 Preset Group / Preset Team)。"""
 
@@ -215,3 +268,50 @@ class BaseBattleTask(BaseOmjTask):
 
         self.log_warning("战斗结束超时")
         return False
+    def open_buff(self, selected):
+        """根据 selected（buff 名列表），先 OCR 定位加成文字位置，再检查/点击对应开关。
+        不同用户加成数量不同，OCR 自适应。"""
+        if not selected:
+            return True
+        if not self.ocr_and_click('成',box=self.box_of_screen(0.31, 0.03, 0.35, 0.11)):
+            self.log_info("不在探索页面，跳过加成")
+            return False
+
+        # 1. OCR 定位屏幕上实际存在的加成文字
+        buff_pattern = '|'.join(selected)
+        results = self.ocr(
+            match=re.compile(buff_pattern),
+            box=self.box_of_screen(0.29, 0.18, 0.72, 0.68),
+        )
+        if not results:
+            self.log_info("OCR 未检测到任何加成文字")
+            return True
+
+        h = self.frame.shape[0]
+
+        for name in selected:
+            # 找到这个 buff 的 OCR 结果
+            match = next((r for r in results if name in r.name), None)
+            if match is None:
+                self.log_info(f"屏幕上未找到加成文字: {name}")
+                continue
+
+            # 2. 从 OCR y 坐标推算开关盒子位置（x 固定 0.67~0.69，y 与文字对齐）
+            rel_y_top = match.y / h
+            rel_y_bot = (match.y + match.height) / h
+            toggle_box = self.box_of_screen(0.67, rel_y_top, 0.69, rel_y_bot)
+
+            # 3. 颜色检测：ON=rgb(243,238,193)→BGR(193,238,243) / OFF=rgb(158,155,126)→BGR(126,155,158)
+            on_ratio = self.calculate_color_percentage(
+                {"b": (180, 210), "g": (230, 250), "r": (235, 255)},
+                box=toggle_box,
+            )
+            if on_ratio > 0.2:
+                self.log_info(f"{name} 加成已开启")
+            else:
+                self.log_info(f"{name} 加成未开启，点击打开")
+                self.click_relative(0.68, (rel_y_top + rel_y_bot) / 2, after_sleep=0.5)
+        self.sleep(1)
+        self.click_relative(0.32,0.07)
+        return True
+

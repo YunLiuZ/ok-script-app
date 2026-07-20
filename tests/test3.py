@@ -25,8 +25,8 @@ h, w = frame.shape[:2]
 # ---- 配置：一行定义 特征名 + 搜索区域，代码自动画框+查找 ----
 # 修改 box= 参数即可，蓝色区域会自动跟着变
 searches = [
-    ("Cancel_Old",  task.box_of_screen(0.85, 0.08, 0.99, 0.25)),
-    ("Back",  task.box_of_screen(0,0,0.2,0.2)),
+    ("Not_Lock",  task.box_of_screen(0.01, 0.88, 0.05, 0.95)),
+    ("Lock",  task.box_of_screen(0.01, 0.88, 0.05, 0.95)),
     ("Exploration_RealmRaid",  task.box_of_screen(0,0.8,1,1)),
     ("Exploration_GoryouRealm",  task.box_of_screen(0,0.8,1,1)),
     

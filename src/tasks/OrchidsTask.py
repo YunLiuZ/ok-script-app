@@ -1,6 +1,7 @@
 import re
 
 from src.tasks.BaseOmjTask import BaseOmjTask
+from src.tasks.BaseBattleTask import BaseBattleTask
 
 
 class OrchidsTask(BaseOmjTask):
@@ -26,13 +27,13 @@ class OrchidsTask(BaseOmjTask):
             self.log_info("等待邀请")
             if self.wait_click_feature('Invitation_Confirm', threshold=0.7,
                                        box=self.B('Invitation_Confirm'),
-                                       raise_if_not_found=False, time_out=10, after_sleep=1):
+                                       raise_if_not_found=False, time_out=30, after_sleep=1):
                 self.log_info("完成邀请")
                 return True
         else:
             if self.wait_click_feature('Invitation_Confirm', threshold=0.7,
                                        box=self.B('Invitation_Confirm'),
-                                       raise_if_not_found=False, time_out=10, after_sleep=1):
+                                       raise_if_not_found=False, time_out=30, after_sleep=1):
                 if self.Orchids():
                     self.log_info("完成邀请")
                     return True
@@ -60,14 +61,24 @@ class OrchidsTask(BaseOmjTask):
                                        box=self.box_of_screen(0.8383, 0.141, 0.8852, 0.2313),
                                        raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到同心之兰")
-        if self.wait_ocr(match=re.compile('福袋'),time_out=3,threshold=0.7,
-                         box=self.box_of_screen(0.23, 0.2, 0.36, 0.28)):
-            self.click_relative(0.7,0.87)
-            self.sleep(1)
-            self.click_relative(0.2,0.2)
-            self.sleep(1)
+        if self.config["First"]:
+            if self.wait_ocr(match=re.compile('福袋'),time_out=3,threshold=0.7,
+                             box=self.box_of_screen(0.23, 0.2, 0.36, 0.28)):
+                self.click_relative(0.7,0.87)
+                self.sleep(1)
+                self.click_relative(0.2,0.2)
+                self.sleep(1)
+            else:
+                self.log_warning("没找到福袋")
         else:
-            self.log_warning("没找到福袋")
+            if self.wait_ocr(match=re.compile('福袋'),time_out=3,threshold=0.7,
+                             box=self.box_of_screen(0.23, 0.2, 0.36, 0.28)):
+                self.click_relative(0.9,0.85)
+                self.sleep(1)
+                self.click_relative(0.2,0.2)
+                self.sleep(1)
+            else:
+                self.log_warning("没找到福袋")
         if not self.wait_click_feature('Cancel_Old', threshold=0.7,
                                        box=self.box_of_screen(0.85, 0.08, 0.99, 0.25),
                                        raise_if_not_found=False, time_out=3, after_sleep=1):

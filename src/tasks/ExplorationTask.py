@@ -1,6 +1,3 @@
-
-
-
 from src.tasks.BaseBattleTask import BaseBattleTask
 
 
@@ -27,50 +24,64 @@ class ExplorationTask(BaseBattleTask):
             },
         })
     def run(self):
-        self.in_home_and_back()
-        if self.config["Preset Enable"]:
-            group, team = self._parse_preset()
-            self.SwitchSoul_by_num(group, team)
+        self._swipe(0.74,0.83,0.77,0.73,1)
+        # self.in_home_and_back()
+        # if self.config["Preset Enable"]:
+        #     group, team = self._parse_preset()
+        #     self.SwitchSoul_by_num(group, team)
+        #
+        # if self.config["UserStatus"] == "队长":
+        #     if not self.Exploration_page():
+        #         self.log_warning("Exploration_page 失败")
+        #         return False
+        #     if not self.Leader_page():
+        #         self.log_warning("Leader_page 失败")
+        #         return False
+        #     if not self.Invitation():
+        #         self.log_warning("Invitation 失败")
+        #         return False
+        #     self.log_info("进入battle")
+        #     if not self.Leader_battle():
+        #         return False
+        #     return True
+        #
+        # elif self.config["UserStatus"] == "单人":
+        #     if not self.Exploration_page():
+        #         self.log_warning("Exploration_page 失败")
+        #         return False
+        #     self.Alone_battle()
+        #     return True
 
-        if self.config["UserStatus"] == "队长":
-            if not self.Exploration_page():
-                self.log_warning("Exploration_page 失败")
-                return False
-            if not self.Leader_page():
-                self.log_warning("Leader_page 失败")
-                return False
-            if not self.Invitation():
-                self.log_warning("Invitation 失败")
-                return False
-            self.log_info("进入battle")
-            if not self.Leader_battle():
-                return False
-            return True
-
-        elif self.config["UserStatus"] == "单人":
-            if not self.Exploration_page():
-                self.log_warning("Exploration_page 失败")
-                return False
-            self.Alone_battle()
-            return True
-
-        else:  # 队员
-            self.log_info("等待邀请")
-            if self.wait_click_feature('Invitation_Confirm', threshold=0.7,
-                                        box=self.B('Invitation_Confirm'),
-                                        raise_if_not_found=False, time_out=300, after_sleep=1):
-                if self.Member_battle():
-                    return True
-                else:
-                    return False
-            else:
-                self.log_warning("等待邀请超时")
-                return False
+        # else:  # 队员
+        #     if not self.wait_click_feature('Home_Explore', threshold=0.7,
+        #                                    box=self.B('Home_Explore'),
+        #                                    raise_if_not_found=False, time_out=3, after_sleep=1):
+        #         self.log_warning("找不到探索 Home_Sign")
+        #
+        #     if self.open_buff(self.config.get("加成选择", [])):
+        #         self.log_info("open buff")
+        #     else:
+        #         self.log_info("not open buff")
+        #     self.log_info("等待邀请")
+        #     if self.wait_click_feature('Invitation_Confirm', threshold=0.7,
+        #                                 box=self.B('Invitation_Confirm'),
+        #                                 raise_if_not_found=False, time_out=300, after_sleep=1):
+        #         if self.Member_battle():
+        #             return True
+        #         else:
+        #             return False
+        #     else:
+        #         self.log_warning("等待邀请超时")
+        #         return False
     def Exploration_page(self):   
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
                                         raise_if_not_found=False, time_out=3, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
+        if self.open_buff(self.config.get("加成选择", [])):
+            self.log_info("open buff")
+        else:
+            self.log_info("not open buff")
         if not (text:=self.ocr_and_click(['二十八'],1,box=self.box_of_screen(0.82, 0.62, 0.92, 0.68))):
             print(text)
             self.log_info('找不到二十八')
