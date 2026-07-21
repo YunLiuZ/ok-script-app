@@ -9,12 +9,12 @@ class GoldYoukaiTask(BaseBattleTask):
     def GoldYoukai_page(self):
         if self.wait_click_feature('Home_Team', threshold=0.7,
                                         box=self.B('bottom'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到探索 Home_Team")
         self.log_info("进入组队页面")
         if self.ocr_and_click(["金币"], threshold=0.7,
                                         box=self.box_of_screen(0.11, 0.18, 0.29, 0.87),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             
             self.log_info("金币妖怪")
         else:
@@ -23,16 +23,16 @@ class GoldYoukaiTask(BaseBattleTask):
             self._swipe(0.22,0.22,0.22,0.82,0.5)
             if self.ocr_and_click(["金币"], threshold=0.7,
                                         box=self.box_of_screen(0.11, 0.18, 0.29, 0.87),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
               self.log_info("金币妖怪")
             else:self.log_warning("找不到金币妖怪")
         
         if self.ocr_and_click(["创建","队伍"], threshold=0.7,
                                         box=self.box_of_screen(0.74, 0.79, 0.94, 0.94),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             if not self.ocr_and_click(["创建","队伍"], threshold=0.7,
                                         box=self.box_of_screen(0.74, 0.79, 0.94, 0.94),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
                 self.log_info("出现弹窗 再次点击")
             if text:=self.ocr_and_click(['不公开','仅邀请',],box=self.box_of_screen(0.3457, 0.5653, 0.5074, 0.6243)):
               print(text)
@@ -61,7 +61,7 @@ class GoldYoukaiTask(BaseBattleTask):
 
     def Invitation(self):
         if text := self.wait_ocr(['协战', '队伍'],
-                                  box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=3):
+                                  box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=6):
             print(text)
 
         targets = [self.config["Friend 1"]]

@@ -27,11 +27,11 @@ class AreaBossTask(BaseBattleTask):
         # self.In_Home()
         if self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         if self.wait_click_feature('Exploration_AreaBoss', threshold=0.7,
                                         box=self.B('bottom'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_info("探索 AreaBoss")
             self.info_set("步骤", "进入探索页面")
             return True
@@ -49,19 +49,21 @@ class AreaBossTask(BaseBattleTask):
 
         
         while(self.count <= self.config["AttackNumber"]):
-            if self.wait_click_feature('AreaBoss_Filter', threshold=0.7,
-                                        box=self.B('AreaBoss_Filter'),
-                                        raise_if_not_found=False, time_out=5, after_sleep=1):
-                self.log_info("探索 AreaBoss")
-                self.info_set("步骤", "进入探索页面")
-            elif text:=self.ocr_and_click(['筛','选'],time_out=5,box=self.B('Areaboss_Filter')):
+            if not (text := self.ocr_and_click(['收', '藏'],0.5, time_out=2, box=self.B('Areaboss_Filter_Page'))):
                 print(text)
+                if self.wait_click_feature('Areaboss_Filter', threshold=0.7,
+                                            box=self.B('Areaboss_Filter'),
+                                            raise_if_not_found=False, time_out=5, after_sleep=1):
+                    self.log_info("探索 AreaBoss")
+                    self.info_set("步骤", "进入探索页面")
+                elif text:=self.ocr_and_click(['筛','选'],time_out=5,box=self.B('Areaboss_Filter')):
+                    print(text)
 
-            if text:=self.ocr_and_click(['收','藏'],0.5,box=self.B('Areaboss_Filter_Page')):
-                print(text)
+                if text:=self.ocr_and_click(['收','藏'],0.5,box=self.B('Areaboss_Filter_Page')):
+                    print(text)
             
             group_rows = {1: 0.36, 2: 0.58,3:0.78}
-            self.click_nth('x', 0.86, group_rows,self.trigger_count ,self.count)
+            self.click_nth('x', 0.86, group_rows,self.trigger_count ,"鬼王")
             if lock_res := self.Lock_team((0.86,0.88,1,1)):
                 self.log_info("锁上了")
             else:

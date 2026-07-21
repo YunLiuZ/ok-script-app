@@ -63,15 +63,15 @@ class UtilizeTask(BaseOmjTask):
     def Utilize_page(self):
         if not self.wait_click_feature('YinYang_Lodge', threshold=0.7,
                                         box=self.B('YinYang_Lodge'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到YinYang_Lodge")
         self.info_set("步骤", "进入YinYang_Lodge")
 
         if not self.wait_click_feature('Utilize_Kekkai', threshold=0.7,
                                         box=self.box_of_screen(0.82, 0.84, 0.9, 0.99),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             if not (text := self.ocr_and_click(['结界'],
-                                  box=self.box_of_screen(0.66, 0.84, 1, 1), time_out=3)):
+                                  box=self.box_of_screen(0.66, 0.84, 1, 1), time_out=6)):
                 
                 self.log_warning("找不到Utilize_Kekkai")
             else:
@@ -86,24 +86,24 @@ class UtilizeTask(BaseOmjTask):
 
     def KekkaiActivation(self):
         if text := self.ocr_and_click(['界卡'],
-                                  box=self.box_of_screen(0.67, 0.36, 0.75, 0.58), time_out=3):
+                                  box=self.box_of_screen(0.67, 0.36, 0.75, 0.58), time_out=6):
             print(text)
 
         if text := self.ocr_and_click(['太鼓', '斗鱼'],
-                                  box=self.box_of_screen(0.63, 0.36, 0.8, 0.41), time_out=2):
+                                  box=self.box_of_screen(0.63, 0.36, 0.8, 0.41), time_out=6):
             print(text)
             self.log_info("结界卡还在")
             # 从 OCR 结果中提取时间 (HH:MM:SS)
             self._extract_kekkai_time(text)
             return True
         if text := self.ocr_and_click(['升序'],
-                                  box=self.box_of_screen(0.13, 0.12, 0.42, 0.22), time_out=3):
+                                  box=self.box_of_screen(0.13, 0.12, 0.42, 0.22), time_out=6):
             print(text)
         if text := self.ocr_and_click(['全部'],
-                                  box=self.box_of_screen(0.13, 0.12, 0.42, 0.22), time_out=3):
+                                  box=self.box_of_screen(0.13, 0.12, 0.42, 0.22), time_out=6):
             print(text)
             text = self.ocr_and_click(['太鼓'],1,
-                                  box=self.box_of_screen(0.28, 0.21, 0.41, 0.61), time_out=3)
+                                  box=self.box_of_screen(0.28, 0.21, 0.41, 0.61), time_out=6)
             self.click_relative(0.26, 0.32,after_sleep=1)
             # rgb(221,199,136) → BGR(136,199,221) ±20
             if res := self.ocr(match="结界寄养", box=self.box_of_screen(0.44, 0.7, 0.54, 0.78)):
@@ -111,14 +111,14 @@ class UtilizeTask(BaseOmjTask):
                 self.log_info(f"找到{res}")
                 self.sleep(1)
                 self.click_relative(0.84,0.84,after_sleep=1)
-                if self.ocr_and_click("确定",box=self.box_of_screen(0.51, 0.53, 0.67, 0.67),time_out=2):
+                if self.ocr_and_click("确定",box=self.box_of_screen(0.51, 0.53, 0.67, 0.67),time_out=6):
                     self.log_info(f"确定")
                     self.sleep(0.5)
                 else:
                     self.log_info("该卡没有上四星")
                 if not self.wait_click_feature('Cancel_Old', threshold=0.7,
                                     box=self.box_of_screen(0.89, 0.11, 0.95, 0.21),
-                                    raise_if_not_found=False, time_out=3, after_sleep=1):
+                                    raise_if_not_found=False, time_out=6, after_sleep=1):
                     self.log_warning("找不到Cancel_Old")
             else:
                 print(res)
@@ -128,18 +128,18 @@ class UtilizeTask(BaseOmjTask):
 
     def KekkaiUtilize(self):
         if text := self.ocr_and_click(['育成'],
-                                  box=self.box_of_screen(0.44, 0.36, 0.52, 0.57), time_out=3):
+                                  box=self.box_of_screen(0.44, 0.36, 0.52, 0.57), time_out=6):
             print(text)
         
         
         if text := self.ocr_and_click(['智能','放入'],2,
-                                  box=self.box_of_screen(0.89, 0.69, 0.94, 0.78), time_out=3):
+                                  box=self.box_of_screen(0.89, 0.69, 0.94, 0.78), time_out=6):
             self.sleep(1)
             self.log_info("式神经验已满 切换式神")
             print(text)
         if self.wait_click_feature('Utilize_Select', threshold=0.7,
                                     box=self.box_of_screen(0.87, 0.04, 0.98, 0.24),
-                                    raise_if_not_found=False, time_out=3, after_sleep=1):
+                                    raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找到Utilize_Select")
         elif self.wait_ocr(match=re.compile(['式神','寄养']),box=self.box_of_screen(0.05, 0.04, 0.19, 0.11)):
             self.log_warning("找到Utilize_Select")
@@ -192,7 +192,7 @@ class UtilizeTask(BaseOmjTask):
                 if found_kaiko:
                     if self.ocr_and_click(['进入', '结界'], box=self.box_of_screen(0.61, 0.74, 0.76, 0.82)):
                         if self.wait_ocr(match=re.compile('式神'), box=self.box_of_screen(0,0,0.2,0.2),
-                                         time_out=3):
+                                         time_out=6):
                             self.log_info("进入寄养页面")
                             self.sleep(2)
                             self.click_relative(0.16, 0.8)
@@ -202,7 +202,7 @@ class UtilizeTask(BaseOmjTask):
 
                                 if not self.wait_click_feature('Back', threshold=0.7,
                                     box=self.B('Home_Button'),
-                                    raise_if_not_found=False, time_out=3, after_sleep=1):
+                                    raise_if_not_found=False, time_out=6, after_sleep=1):
                                     self.log_warning("找不到Home_Button")
                                 self.info_set("步骤", "返回自己的结界")
                         else:

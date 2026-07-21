@@ -325,12 +325,18 @@ class BaseOmjTask(BaseTask):
             self.log_info('点击 Home_Button')
             if self.In_Home():
                 return True
+            else:
+                if self.ocr_and_click('确定', time_out=6, box=self.box_of_screen(0.27, 0.5, 0.73, 0.65)):
+                    self.log_info('点击确认')
         self.sleep(0.3)
         if btns := self.find_feature('Back', box=self.B('Back'), threshold=0.8):
             self.click(btns[0], after_sleep=0.5)
             self.log_info('点击 Back')
             if self.In_Home():
                 return True
+            else:
+                if self.ocr_and_click('确定', time_out=6, box=self.box_of_screen(0.27, 0.5, 0.73, 0.65)):
+                    self.log_info('点击确认')
         self.sleep(0.3)
         if btns := self.find_feature('Home_Button', box=self.B('Home_Button'), threshold=0.8):
             self.click(btns[0], after_sleep=2)
@@ -376,7 +382,7 @@ class BaseOmjTask(BaseTask):
         self.log_info("寻从阴阳寮返回主页")
         if not self.wait_click_feature('YinYang_Lodge', threshold=0.7,
                                         box=self.B('YinYang_Lodge'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到YinYang_Lodge")
             return False
         self.info_set("步骤", "进入YinYang_Lodge")
@@ -397,7 +403,7 @@ class BaseOmjTask(BaseTask):
 #endregion     
     
     
-    def ocr_and_click(self, match, sleep: float = 0.5,time_out :float =3, box=None, random_click: bool = False,raise_if_not_found=False) -> bool:
+    def ocr_and_click(self, match, sleep: float = 0.5,time_out :float =6, box=None, random_click: bool = False,raise_if_not_found=False) -> bool:
         """OCR 指定区域按优先级模糊匹配文字并点击。返回 True/False。
         match: str 或 list[str]，内部自动转正则（包含即匹配）。
         random_click=True 时在识别区域内随机选点点击。

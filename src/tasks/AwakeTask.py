@@ -59,7 +59,7 @@ class SoulZonesTask(BaseBattleTask):
     def awake_page(self):
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
 
@@ -69,7 +69,7 @@ class SoulZonesTask(BaseBattleTask):
             self.log_info("not open buff")
         if self.wait_click_feature('Exploration_Awake', threshold=0.7,
                                         box=self.B('bottom'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_info("探索 RealmRaid")
             self.info_set("步骤", "进入RealmRaid")
         elif text:=self.ocr_and_click(['觉醒','材料'],1,box=self.box_of_screen(0.03, 0.88, 0.11, 0.99)):
@@ -102,7 +102,7 @@ class SoulZonesTask(BaseBattleTask):
         self._swipe(0.11, 0.69, 0.11, 0.22, 0.5)
         self._swipe(0.11, 0.69, 0.11, 0.22, 0.5)
         self.sleep(0.5)
-        if text:=self.ocr_and_click('拾层',1,box=self.box_of_screen(0.06,0.43,0.16,0.94),time_out=3):
+        if text:=self.ocr_and_click('拾层',1,box=self.box_of_screen(0.06,0.43,0.16,0.94),time_out=6,):
                 self.log_info('拾层')
                 return True
         else:
@@ -135,7 +135,7 @@ class SoulZonesTask(BaseBattleTask):
         return False
     def invitation(self):
         if text := self.wait_ocr(['协战', '队伍'],
-                                  box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=3):
+                                  box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=6,):
             print(text)
 
         targets = [self.config["Friend 1"]]
@@ -191,7 +191,7 @@ class SoulZonesTask(BaseBattleTask):
                                        raise_if_not_found=False, time_out=5, after_sleep=1):
             self.log_warning("找不到Battle_Finish")
         if self.ocr_and_click("确定", box=self.box_of_screen(0.54, 0.57, 0.63, 0.62)):
-            self.wait_click_feature("Home_Button", box=self.B("Home_Button"), threshold=0.8, time_out=3, after_sleep=2)
+            self.wait_click_feature("Home_Button", box=self.B("Home_Button"), threshold=0.8, time_out=6, after_sleep=2)
         if self.in_home_and_back():
             return True
         else:
@@ -217,8 +217,8 @@ class SoulZonesTask(BaseBattleTask):
                     self.log_warning("找不到Member_Confirm")
                 if  self.wait_click_feature('Leader_Invitation', threshold=0.7,
                                         box=self.B('Leader_Invitation'),
-                                        raise_if_not_found=False, time_out=2, after_sleep=1):
-                        if not (self.ocr_and_click('确定',time_out=2,box=self.box_of_screen(0.45,0.45,0.70,0.70))):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
+                        if not (self.ocr_and_click('确定',time_out=6,box=self.box_of_screen(0.45,0.45,0.70,0.70))):
                             self.log_warning("找不到确认")
             self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
             self.count += 1

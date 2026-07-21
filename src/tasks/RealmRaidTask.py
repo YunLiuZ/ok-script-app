@@ -35,7 +35,7 @@ class RealmRaidTask(BaseBattleTask):
 
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
 
@@ -46,7 +46,7 @@ class RealmRaidTask(BaseBattleTask):
 
         if self.wait_click_feature('Exploration_RealmRaid', threshold=0.7,
                                         box=self.B('bottom'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_info("探索 RealmRaid")
             self.info_set("步骤", "进入RealmRaid")
         elif text:=self.ocr_and_click(['结界','突破'],1,box=self.box_of_screen(0.18, 0.86, 0.26, 0.99)):
@@ -55,7 +55,7 @@ class RealmRaidTask(BaseBattleTask):
             self.log_info('找不到突破')
             return False
         
-        if text := self.wait_ocr(threshold=0.8,box=self.box_of_screen(0.89,0.02,0.95,0.1),time_out=2):
+        if text := self.wait_ocr(threshold=0.8,box=self.box_of_screen(0.89,0.02,0.95,0.1),time_out=6):
             import re
             nums = re.findall(r'\d+', text[0].name)
             self.tickets = int(nums[0]) if nums else 0

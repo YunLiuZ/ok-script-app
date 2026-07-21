@@ -60,12 +60,12 @@ class DelegationTask(BaseOmjTask):
 
         if not self.wait_click_feature('Home_Explore', threshold=0.7,
                                         box=self.B('Home_Explore'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到探索 Home_Sign")
         self.info_set("步骤", "进入探索页面")
         if self.wait_click_feature('Exploration_Delegation', threshold=0.7,
                                         box=self.B('bottom'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_info("探索 Delegation")
             self.info_set("步骤", "进入Delegation")
             return True
@@ -102,7 +102,7 @@ class DelegationTask(BaseOmjTask):
             else:
                 self.info_set("委派", f"已点击 {translation}")
                 if self.wait_ocr("召回", box=self.box_of_screen(0.73, 0.35, 0.93, 0.53),
-                                 threshold=0.8, time_out=2, raise_if_not_found=False):
+                                 threshold=0.8, time_out=6, raise_if_not_found=False):
                     self.log_info('找到还未完成的任务')
                     if not (text := self.ocr_and_click(['跳过'], 2,
                                                         box=self.box_of_screen(0.72, 0.54, 0.85, 0.69))):
@@ -149,7 +149,7 @@ class DelegationTask(BaseOmjTask):
             print(text)
             self.log_info('找到出发')
             if text := self.wait_ocr(['式神','委派'],
-                                    box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=3):
+                                    box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=6):
                 return True
         else:
             return False

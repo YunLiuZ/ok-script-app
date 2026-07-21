@@ -20,7 +20,7 @@ class DailyTask(BaseOmjTask):
         # 点击签到入口
         if not self.wait_click_feature('Home_Sign', threshold=0.7,
                                         box=self.B('Home_Sign'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找不到签到入口 Home_Sign")
         self.log_info("进入签到页面")
         self.click_relative(0.92, 0.22, after_sleep=1)
@@ -64,26 +64,26 @@ class DailyTask(BaseOmjTask):
         # 跳过
         if not self.wait_click_feature('Sign_Daily_Skip', threshold=0.7,
                                         box=self.B('Sign_Daily_Skip'),
-                                        raise_if_not_found=False, time_out=3):
+                                        raise_if_not_found=False, time_out=6):
             if texts := self.ocr(box=self.B('ocr_skip_topright'), match='跳过'):
                 self.click_box(texts[0], after_sleep=2)
                 self.log_info( "跳过")
                 if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
                                                 box=self.B('Daily_New_Cancel'),
-                                                raise_if_not_found=False, time_out=3):
+                                                raise_if_not_found=False, time_out=6):
                     self.log_warning("找不到万花关闭")
                     self.click_relative(0.9, 0.09, after_sleep=1)
 
         # 签到成功
         if not self.wait_click_feature('Daily_Sign_Success', threshold=0.7,
                                         box=self.B('Daily_Sign_Success'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.ocr_and_click("成功", box=self.B('Daily_Sign_Success'))
 
         # 返回主页
         if self.wait_click_feature('Home_Button', threshold=0.7,
                                 box=self.B('Home_Button'),
-                                raise_if_not_found=False, time_out=3,after_sleep=2):
+                                raise_if_not_found=False, time_out=6,after_sleep=2):
             self.log_info("签到完成")
             return True
 
@@ -93,7 +93,7 @@ class DailyTask(BaseOmjTask):
 
         if not self.wait_click_feature('Home_Store', threshold=0.7,
                                         box=self.B('Home_Store'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_info("找不到Home_Store")
 
         self.click_relative(0.5, 0.5, after_sleep=2)
@@ -102,17 +102,17 @@ class DailyTask(BaseOmjTask):
             self.Back_Home()
             if not self.wait_click_feature('Home_Store', threshold=0.7,
                                             box=self.B('Home_Store'),
-                                            raise_if_not_found=False, time_out=3, after_sleep=1):
+                                            raise_if_not_found=False, time_out=6, after_sleep=1):
                 self.log_info("找不到Home_Store")
 
         self.ocr_and_click('礼包', box=self.B('Gift_Store'))
         if not self.wait_click_feature('Gift_Daily', threshold=0.7,
                                         box=self.B('Gift_Daily'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=1):
+                                        raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_info("找不到Gift_Daily")
         if not self.wait_click_feature('Gift_Daily_Finish', threshold=0.7,
                                         box=self.B('Gift_Daily_Finish'),
-                                        raise_if_not_found=False, time_out=3, after_sleep=2):
+                                        raise_if_not_found=False, time_out=6, after_sleep=2):
             self.log_info("找不到Gift_Daily_Finish")
 
         if self.ocr_and_click(['获得', '奖励'], box=self.box_of_screen(0.35, 0.24, 0.65, 0.37),
@@ -125,7 +125,7 @@ class DailyTask(BaseOmjTask):
 
         if self.wait_click_feature('Home_Button', threshold=0.7,
                                 box=self.B('Home_Button'),
-                                raise_if_not_found=False, time_out=3,after_sleep=2):
+                                raise_if_not_found=False, time_out=6,after_sleep=2):
             return True
         # self.state.mark_done("gift_shop")  # 测试期间注释
         self.log_info("礼包屋签到完成", notify=True)
