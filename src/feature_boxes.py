@@ -89,7 +89,7 @@ BOX = {
 
 
 
-    "Delegation": (0.76, 0.18, 0.99, 0.92),
+    "Delegation": (0.76, 0.15, 1, 0.92),
     "DKekkaiUtilize_Box": (0.41, 0.26, 0.48, 0.81),
      
     

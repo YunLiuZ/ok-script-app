@@ -39,7 +39,7 @@ def get_enabled_in_order():
 
     tasks = []
     for name in enabled:
-        pri = int(order.get(name, 10)) if order.get(name, "10") else 10
+        pri = int(order.get(name, "1") or 1)
         default_idx = ALL_TASK_NAMES.index(name) if name in ALL_TASK_NAMES else 99
         tasks.append((pri, default_idx, name))
 

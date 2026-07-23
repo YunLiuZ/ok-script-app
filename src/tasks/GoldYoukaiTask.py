@@ -49,7 +49,7 @@ class GoldYoukaiTask(BaseBattleTask):
     def _invite_one(self, f: str, invite_xy: tuple, confirm_box: tuple) -> bool:
         """邀请单个好友：invite_xy=(x,y) 邀请按钮位置，confirm_box 确认区域。"""
         self.click_relative(*invite_xy, after_sleep=1)
-        for tab in ('最近', '好友', '跨区', '寮友'):
+        for tab in self._invite_tabs():
             if self.ocr_and_click(tab, box=self.B("Friend_Index")):
                 if self.ocr_and_click(f, box=self.B("Friend")):
                     self.click_relative(0.60, 0.79, after_sleep=1)

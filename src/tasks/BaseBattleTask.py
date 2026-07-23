@@ -19,6 +19,7 @@ class BaseBattleTask(BaseOmjTask):
             "AttackNumber":10,
             "BattleTime": 300,
             "加成选择": [],
+            "优先搜索": "最近",
         })
 
         self.config_description.update({
@@ -28,12 +29,17 @@ class BaseBattleTask(BaseOmjTask):
             "Team Team": "预设组，队伍名，理论上可以让队伍选择更多，但是推荐尽量用上面那个，因为更稳定",
             "BattleTime": "通过时间 一般情况下不用修改",
             "加成选择": "选择需要打开的加成，不选则不开任何加成。",
+            "优先搜索": "邀请好友时优先查看哪个标签页（最近/好友/跨区/寮友）。",
         })
 
         self.config_type.update({
             "加成选择": {
                 "type": "multi_selection",
                 "options": self.BUFF_NAMES.copy(),
+            },
+            "优先搜索": {
+                "type": "drop_down",
+                "options": ["最近", "好友", "跨区", "寮友"],
             },
         })
 
@@ -158,6 +164,18 @@ class BaseBattleTask(BaseOmjTask):
             else:
                 self.log_info("解锁")
                 return False
+
+    def _invite_tabs(self, base_tabs=None):
+        """返回按优先搜索重排后的标签页列表。"""
+        if base_tabs is None:
+            base_tabs = ["最近", "好友", "跨区", "寮友"]
+        tabs = list(base_tabs)
+        first = self.config.get("优先搜索", tabs[0])
+        if first in tabs:
+            tabs.remove(first)
+            tabs.insert(0, first)
+        return tabs
+
     def Change_team(self):
         self.ocr_and_click(["预","设"],box=self.box_of_screen(0,0.87,0.15,1))# (0.8781, 0.7701, 0.9625, 0.8535)
         group, team = self._parse_preset()
@@ -322,7 +340,7 @@ class BaseBattleTask(BaseOmjTask):
         results = self.wait_ocr(
             match=re.compile('自动|手动'),
             box=self.box_of_screen(0.02, 0.88, 0.08, 0.96),
-            time_out = 6
+            time_out = 4
         )
         if not results:
             self.log_info("没检测到自动手动，可能战斗已经结束")
@@ -333,5 +351,6 @@ class BaseBattleTask(BaseOmjTask):
                 self.log_info("点击 切换自动")
                 return True
             if '自动' in r.name:
+                self.log_info("自动")
                 return True
 

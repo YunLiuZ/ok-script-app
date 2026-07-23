@@ -39,6 +39,7 @@ class GameEventsBattleTask(BaseBattleTask):
 
 
     def Battle(self):
+        self.ocr_and_click("式神",box=self.box_of_screen(0.65,0.82,0.84,0.9))
         if self.wait_ocr(match=re.compile("养成|协战|式神"),
                          time_out=3,
                          box=self.box_of_screen(0.65,0.82,0.84,0.9)):
