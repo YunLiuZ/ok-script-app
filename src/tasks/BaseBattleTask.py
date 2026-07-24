@@ -6,7 +6,7 @@ from src.tasks.BaseOmjTask import BaseOmjTask
 class BaseBattleTask(BaseOmjTask):
     """战斗任务基类：统一管理阵容锁定、预设队伍切换等战斗配置。"""
 
-    BUFF_NAMES = ["觉醒", "御魂", "金币增加100", "经验增加100", "经验增加50"]
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -16,10 +16,8 @@ class BaseBattleTask(BaseOmjTask):
             "Preset Enable": False,
             "Preset Team": "1,1",
             "Team Name":"",
-            "AttackNumber":10,
+            "AttackNumber":1,
             "BattleTime": 300,
-            "加成选择": [],
-            "优先搜索": "最近",
         })
 
         self.config_description.update({
@@ -28,27 +26,15 @@ class BaseBattleTask(BaseOmjTask):
             "Preset Team": "预设队伍编号，格式：组,队  例如 1,5 表示第1组第4个队伍，最大支持7和4。",
             "Team Team": "预设组，队伍名，理论上可以让队伍选择更多，但是推荐尽量用上面那个，因为更稳定",
             "BattleTime": "通过时间 一般情况下不用修改",
-            "加成选择": "选择需要打开的加成，不选则不开任何加成。",
-            "优先搜索": "邀请好友时优先查看哪个标签页（最近/好友/跨区/寮友）。",
         })
-
         self.config_type.update({
-            "加成选择": {
-                "type": "multi_selection",
-                "options": self.BUFF_NAMES.copy(),
-            },
-            "优先搜索": {
-                "type": "drop_down",
-                "options": ["最近", "好友", "跨区", "寮友"],
-            },
         })
 
-    # ---------- 预设队伍解析 ----------
+    # ---------- 预设队伍解析 ----------preset="Preset Team",team="1,1"
 
-    def _parse_preset(self):
-        """解析 Preset Team 配置（格式 "组,队" 如 "1,5"），返回 (group, team)。"""
-        val = self.config.get("Preset Team", "1,1")
-        parts = val.split(",")
+    def _parse_preset(self, preset="1,1"):
+        """解析 组,队 字符串（如 "1,5"），返回 (group, team)。"""
+        parts = preset.split(",")
         if len(parts) == 2:
             return int(parts[0].strip()), int(parts[1].strip())
         return 1, 1
@@ -178,7 +164,7 @@ class BaseBattleTask(BaseOmjTask):
 
     def Change_team(self):
         self.ocr_and_click(["预","设"],box=self.box_of_screen(0,0.87,0.15,1))# (0.8781, 0.7701, 0.9625, 0.8535)
-        group, team = self._parse_preset()
+        group, team = self._parse_preset(self.config["Preset Team"])
         group_rows = {1: 0.36, 2: 0.45, 3: 0.54, 4: 0.63, 5: 0.72, 6: 0.81, 7: 0.90}
         self.click_nth('x', 0.76, group_rows, group, "预设组")
 
@@ -198,14 +184,14 @@ class BaseBattleTask(BaseOmjTask):
     def Find_finish(self, battle_time, success_box='Battle_Success'):
         """
         等待战斗结束并处理结算画面。
-        同时检测 Battle_Success 和 Battle_Finish，用各自的 box。
-        保留原嵌套重试逻辑：点一次 → sleep → 确认 → 没点上再补刀。
 
         Returns:
-            True  战斗正常结束
-            False 超时
+            1  战斗成功
+            2  战斗失败
+            3  超时
         """
-        success_clicked = False
+        result = 1
+
         def finish():
             if self.wait_click_feature('Battle_Finish', threshold=0.7,
                                         box=self.B('Battle_Finish'),
@@ -213,8 +199,8 @@ class BaseBattleTask(BaseOmjTask):
                 self.sleep(0.5)
                 if res1 := self.find_one('Battle_Finish', threshold=0.7,
                                           box=self.B('Battle_Finish')):
-                    self.click(res1,after_sleep=0.1)
-                    self.click(res1,after_sleep=0.1)
+                    self.click(res1, after_sleep=0.1)
+                    self.click(res1, after_sleep=0.1)
                     self.click(res1, after_sleep=0.1)
                     self.log_info("第一次没点到")
                     return True
@@ -238,6 +224,7 @@ class BaseBattleTask(BaseOmjTask):
             return False
 
         def check():
+            nonlocal result
             if res := self.find_one('Battle_Success', threshold=0.7,
                                         box=self.B('success_box')):
                 self.click(res)
@@ -253,10 +240,8 @@ class BaseBattleTask(BaseOmjTask):
                     return True
                 else:
                     return False
-            # 检测 Battle_Finish（原嵌套重试逻辑）
             if res := self.find_one('Battle_Finish', threshold=0.7,
-                                        box=self.B('Battle_Finish'),
-                                        ):
+                                        box=self.B('Battle_Finish')):
                 self.click(res)
                 self.sleep(1)
                 if res1 := self.find_one('Battle_Finish', threshold=0.7,
@@ -269,8 +254,7 @@ class BaseBattleTask(BaseOmjTask):
                     self.log_info("第一次点到")
                     return True
             if res := self.find_one('Battle_Finish_Soul', threshold=0.7,
-                                        box=self.B('Battle_Finish_Soul'),
-                                        ):
+                                        box=self.B('Battle_Finish_Soul')):
                 self.click(res)
                 self.sleep(1)
                 if res1 := self.find_one('Battle_Finish_Soul', threshold=0.7,
@@ -282,13 +266,28 @@ class BaseBattleTask(BaseOmjTask):
                 else:
                     self.log_info("第一次点到")
                     return True
+            if res := self.find_one('Battle_Failure', threshold=0.7,
+                                        box=self.B('Battle_Failure')):
+                self.click(res)
+                self.sleep(0.5)
+                if res1 := self.find_one('Battle_Failure', threshold=0.7,
+                                        box=self.B('Battle_Failure')):
+                    self.click(res1)
+                    self.log_info("第一次没点到")
+                    self.sleep(1)
+                    result = 2
+                    return True
+                else:
+                    self.log_info("第一次点到")
+                    result = 2
+                    return True
             return False
 
         if self.wait_until(check, time_out=battle_time, raise_if_not_found=False):
-            return True
+            return result
 
         self.log_warning("战斗结束超时")
-        return False
+        return 3
     def open_buff(self, selected):
         """根据 selected（buff 名列表），先 OCR 定位加成文字位置，再检查/点击对应开关。
         不同用户加成数量不同，OCR 自适应。"""

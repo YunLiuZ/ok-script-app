@@ -1,10 +1,10 @@
-from src.tasks.BaseBattleTask import BaseBattleTask
+from src.tasks.BuffBattleTask import BuffBattleTask
 
 
-class SoulZonesTask(BaseBattleTask):
+class SoulZonesTask(BuffBattleTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "战斗-魂土"
+        self.name = "战斗-觉醒"
         self.trigger_count = 1
         self.count = 1
 
@@ -31,9 +31,8 @@ class SoulZonesTask(BaseBattleTask):
         })
     def run(self):
         self.in_home_and_back()
-
         if self.config["Preset Enable"]:
-            group, team = self._parse_preset()
+            group, team = self._parse_preset(self.config["Preset Team"])
             self.SwitchSoul_by_num(group, team)
 
         if self.config["UserStatus"] == "队长":
@@ -176,7 +175,13 @@ class SoulZonesTask(BaseBattleTask):
                         if not lock_res:
                             self.Change_team()
 
-                    self.Find_finish(self.config["BattleTime"])
+                    res = self.Find_finish(self.config["BattleTime"])
+                    if res == 2:
+                        self.log_warning("战斗失败！！")
+                        return False
+                    elif res == 3:
+                        self.log_warning("战斗超时！！")
+                        return False
 
                     self.log_info(
                         f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
@@ -209,8 +214,12 @@ class SoulZonesTask(BaseBattleTask):
                 self.log_info("检测是否为自动")
                 self.change_auto()
 
-            if not self.Find_finish(self.config["BattleTime"]):
-                self.Back_Home()
+            res = self.Find_finish(self.config["BattleTime"])
+            if res == 2:
+                self.log_warning("战斗失败！！")
+                return False
+            elif res == 3:
+                self.log_warning("战斗超时！！")
                 return False
             if self.count == 1:
                 if not self.wait_click_feature('Member_Confirm', threshold=0.7,

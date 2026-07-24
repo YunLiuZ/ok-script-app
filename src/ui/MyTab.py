@@ -42,21 +42,6 @@ class MyTab(CustomTab):
         op_layout = QVBoxLayout(op_widget)
         op_layout.setContentsMargins(0, 12, 0, 0)
 
-        # 角色名输入
-        row0 = QWidget()
-        row0_layout = QHBoxLayout(row0)
-        row0_layout.setContentsMargins(0, 0, 0, 0)
-        row0_layout.addWidget(BodyLabel("控制角色名："))
-
-        self.char_name_edit = LineEdit()
-        self.char_name_edit.setPlaceholderText("如：晴明大号")
-        self.char_name_edit.setFixedWidth(300)
-        self.char_name_edit.setText(self._load_char_name())
-        self.char_name_edit.textChanged.connect(self._save_char_name)
-        row0_layout.addWidget(self.char_name_edit)
-        row0_layout.addStretch()
-        op_layout.addWidget(row0)
-
         # 编号选择
         row1 = QWidget()
         row1_layout = QHBoxLayout(row1)
@@ -91,7 +76,6 @@ class MyTab(CustomTab):
             "1. 选择一个编号（如 2），点击「打开新窗口」，最大窗口数为10\n"
             "2. 新窗口标题会显示为「ok-Onmyoji #2」\n"
             "3. 每个编号的设置独立保存，下次打开自动恢复,推荐一个窗口指定控制一个角色\n"
-            "4. 可在此页面填入常控制的角色，帮助记忆此窗口一般是控制谁\n"
         )
         tips_text.setWordWrap(True)
         self.add_widget(tips_text)

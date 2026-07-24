@@ -1,5 +1,7 @@
-from src.tasks.BaseBattleTask import BaseBattleTask
-class GoldYoukaiTask(BaseBattleTask):
+import re
+
+from src.tasks.BuffBattleTask import BuffBattleTask
+class GoldYoukaiTask(BuffBattleTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "日常-战斗-金币妖怪"
@@ -38,7 +40,7 @@ class GoldYoukaiTask(BaseBattleTask):
               print(text)
               self.click_relative(0.51,0.71,after_sleep=1)
             self.log_info("创建队伍")
-        if text:=self.wait_ocr(['协战','队伍'],box=self.box_of_screen(0,0,0.2,0.1)):
+        if text:=self.wait_ocr(match=re.compile("协战|队伍"),box=self.box_of_screen(0,0,0.2,0.1)):
             
           self.log_info('进入协战队伍')
           return True
@@ -60,7 +62,7 @@ class GoldYoukaiTask(BaseBattleTask):
         return False
 
     def Invitation(self):
-        if text := self.wait_ocr(['协战', '队伍'],
+        if text := self.wait_ocr(match=re.compile("协战|召回"),
                                   box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=6):
             print(text)
 
@@ -91,7 +93,13 @@ class GoldYoukaiTask(BaseBattleTask):
                 if ok:
                     self.click_relative(0.95,0.90,after_sleep=0.5)
                     self.log_info("进入battle")
-                    self.Find_finish(self.config["BattleTime"])
+                    res = self.Find_finish(self.config["BattleTime"])
+                    if res == 2:
+                        self.log_warning("战斗失败！！")
+                        return False
+                    elif res == 3:
+                        self.log_warning("战斗超时！！")
+                        return False
                     self.log_info(f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
                     self.count+=1
                     self.trigger_count+=1

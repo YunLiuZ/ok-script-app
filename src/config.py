@@ -154,8 +154,8 @@ config = {
     ],
     'trigger_tasks': [  # 后台自动运行的调度任务
         ["src.tasks.AutoScheduleRunner", "ScheduleRunner"],
-        ["src.tasks.AutoRecover", "AutoRecover"],
-        ["src.tasks.AutoLoginTask", "AutoLoginTask"],
+        # ["src.tasks.AutoRecover", "AutoRecover"],
+        # ["src.tasks.AutoLoginTask", "AutoLoginTask"],
 
     ],
 }

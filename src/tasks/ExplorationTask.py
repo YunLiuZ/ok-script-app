@@ -1,9 +1,9 @@
 import re
 
-from src.tasks.BaseBattleTask import BaseBattleTask
+from src.tasks.BuffBattleTask import BuffBattleTask
 
 
-class ExplorationTask(BaseBattleTask):
+class ExplorationTask(BuffBattleTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "战斗-困28"
@@ -33,24 +33,9 @@ class ExplorationTask(BaseBattleTask):
     def _invite_tabs(self, base_tabs=None):
         return super()._invite_tabs(["好友", "跨区", "寮友"])
     def run(self):
-        # if text:=self.wait_ocr(match=re.compile(self.config["Friend 1"]),
-        #                  time_out=3,
-        #                  raise_if_not_found=False,
-        #                  box=self.box_of_screen(0.73, 0.09, 0.94, 0.24)):
-        #     print(text)
-        #     print(self.config["Friend 1"])
-        #     self.sleep(1)
-        #     self.log_info("队友进入战斗")
-        #     self.click_relative(0.95, 0.90, after_sleep=0.5)
-        #     self.log_info("点击挑战进入battle")
-        # else:
-        #     print(text)
-        #     print(self.config["Friend 1"])
-        #     self.log_info("找不到队友")
-
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            group, team = self._parse_preset()
+            group, team = self._parse_preset(self.config["Preset Team"])
             self.SwitchSoul_by_num(group, team)
 
         if self.config["UserStatus"] == "队长":
@@ -261,15 +246,18 @@ class ExplorationTask(BaseBattleTask):
 
     def Member_battle(self):
         def battle():
-            if self.Find_finish(self.config["BattleTime"]):
+            res = self.Find_finish(self.config["BattleTime"])
+            if res == 1:
                 self.log_info(
                     f"第 {self.count} 次战斗结束 总共{self.config["AttackNumber"]} 第 {self.trigger_count} 次战斗")
                 self.count += 1
                 self.trigger_count += 1
                 return True
-            else:
-                self.log_warning("没找到战斗结算页面")
-                self.Back_Home()
+            elif res == 2:
+                self.log_warning("战斗失败！！")
+                return False
+            elif res == 3:
+                self.log_warning("战斗超时！！")
                 return False
         def final_battle():
             if self.wait_feature('Exploration_Final_Treasure', threshold=0.7,

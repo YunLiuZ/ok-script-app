@@ -101,7 +101,7 @@ class DelegationTask(BaseOmjTask):
                 self.log_info(f'找不到委派任务: {translation}')
             else:
                 self.info_set("委派", f"已点击 {translation}")
-                if self.wait_ocr("召回", box=self.box_of_screen(0.73, 0.35, 0.93, 0.53),
+                if self.wait_ocr(match=re.compile("召回"), box=self.box_of_screen(0.73, 0.35, 0.93, 0.53),
                                  threshold=0.8, time_out=6, raise_if_not_found=False):
                     self.log_info('找到还未完成的任务')
                     if not (text := self.ocr_and_click(['跳过'], 2,

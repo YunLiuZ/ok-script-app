@@ -1,7 +1,10 @@
-from src.tasks.BaseBattleTask import BaseBattleTask
+import re
+
+from src.tasks.BuffBattleTask import BuffBattleTask
 
 
-class SoulZonesTask(BaseBattleTask):
+
+class SoulZonesTask(BuffBattleTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "战斗-魂土"
@@ -107,7 +110,7 @@ class SoulZonesTask(BaseBattleTask):
                     return
         # 兜底：使用默认的 Preset Team
         self.log_info("使用默认预设队伍")
-        group, team = self._parse_preset()
+        group, team = self._parse_preset(self.config["Preset Team"])
         self.SwitchSoul_by_num(group, team)
 
     def SoulZones_page(self):   
@@ -134,7 +137,7 @@ class SoulZonesTask(BaseBattleTask):
             self.log_info('找不到Soul')
             return False
 
-        if text:=self.wait_ocr(['御魂','御','魂'],box=self.box_of_screen(0.11,0,0.17,0.1)):
+        if text:=self.wait_ocr(match=re.compile("御魂"),box=self.box_of_screen(0.11,0,0.17,0.1)):
 
             self.click_relative(0.2,0.5,after_sleep=1)
             self.log_info('点击八岐大蛇')
@@ -200,7 +203,7 @@ class SoulZonesTask(BaseBattleTask):
         return False
 
     def Invitation(self):
-        if text := self.wait_ocr(['协战', '队伍'],
+        if text := self.wait_ocr(match = re.compile("协战|队伍"),
                                   box=self.box_of_screen(0, 0, 0.17, 0.1), time_out=6):
             print(text)
 
@@ -249,7 +252,13 @@ class SoulZonesTask(BaseBattleTask):
                                 self.Change_team()
                         self.log_info("检测是否为自动")
                         self.change_auto()
-                    self.Find_finish(self.config["BattleTime"])
+                    res = self.Find_finish(self.config["BattleTime"])
+                    if res == 2:
+                        self.log_warning("战斗失败！！")
+                        return False
+                    elif res == 3:
+                        self.log_warning("战斗超时！！")
+                        return False
 
                     if self.count == 1:      
                         if self.wait_ocr("发现宝藏",time_out=1,box=self.box_of_screen(0.36,0.18,0.65,0.33)):
@@ -328,7 +337,7 @@ class SoulZonesTask(BaseBattleTask):
             if self.count == 1:
                 self.log_info("检测是否为自动")
                 self.change_auto()
-            if not self.Find_finish(self.config["BattleTime"]):
+            if self.Find_finish(self.config["BattleTime"]) != 1:
                 self.Back_Home()
                 return False
             if self.count == 1:      

@@ -131,7 +131,7 @@ class GameEventsBattleTask(BaseBattleTask):
                     self.log_info("第一次点到")
                     return True
 
-        if text := self.wait_click_ocr(['挑战'],True,box=self.box_of_screen(0.88,0.83,0.95,0.91)):
+        if text := self.wait_click_ocr(match=re.compile("挑战"),box=self.box_of_screen(0.88,0.83,0.95,0.91)):
                 print(text)
         if self.count == 1:
             self.change_auto()

@@ -9,11 +9,11 @@ class UtilizeTask(BaseOmjTask):
         self.name = "日常-结界"
 
         self.default_config.update({
-            "KekkaiActivation": True,
-            "KekkaiUtilize": True,
+            "KekkaiActivation": False,
+            "KekkaiUtilize": False,
             "寄养优先": "好友优先",
-            "卡片优先级": "Douyu优先",
-            "检测对象": "都检测",
+            "卡片优先级": "Shop_Kaiko优先",
+            "检测对象":"只检测Shop_Kaiko",
         })
         self.config_description.update({
             "寄养优先": "优先搜索好友寄养还是跨区寄养。",
@@ -89,21 +89,22 @@ class UtilizeTask(BaseOmjTask):
                                   box=self.box_of_screen(0.67, 0.36, 0.75, 0.58), time_out=6):
             print(text)
 
-        if text := self.ocr_and_click(['太鼓', '斗鱼'],
-                                  box=self.box_of_screen(0.63, 0.36, 0.8, 0.41), time_out=6):
-            print(text)
-            self.log_info("结界卡还在")
-            # 从 OCR 结果中提取时间 (HH:MM:SS)
-            self._extract_kekkai_time(text)
-            return True
         if text := self.ocr_and_click(['升序'],
                                   box=self.box_of_screen(0.13, 0.12, 0.42, 0.22), time_out=6):
             print(text)
         if text := self.ocr_and_click(['全部'],
                                   box=self.box_of_screen(0.13, 0.12, 0.42, 0.22), time_out=6):
             print(text)
+
             text = self.ocr_and_click(['太鼓'],1,
                                   box=self.box_of_screen(0.28, 0.21, 0.41, 0.61), time_out=6)
+            if text :=self.ocr(match=re.compile("位置"),
+                               box=self.box_of_screen(0.45, 0.84, 0.64, 0.94)):
+                self.log_info("结界卡还在")
+                if text := self.ocr(box=self.box_of_screen(0.63, 0.36, 0.8, 0.41)):
+                    # 从 OCR 结果中提取时间 (HH:MM:SS)
+                    self._extract_kekkai_time(text)
+                    return True
             self.click_relative(0.26, 0.32,after_sleep=1)
             # rgb(221,199,136) → BGR(136,199,221) ±20
             if res := self.ocr(match="结界寄养", box=self.box_of_screen(0.44, 0.7, 0.54, 0.78)):
@@ -141,7 +142,7 @@ class UtilizeTask(BaseOmjTask):
                                     box=self.box_of_screen(0.87, 0.04, 0.98, 0.24),
                                     raise_if_not_found=False, time_out=6, after_sleep=1):
             self.log_warning("找到Utilize_Select")
-        elif self.wait_ocr(match=re.compile(['式神','寄养']),box=self.box_of_screen(0.05, 0.04, 0.19, 0.11)):
+        elif self.wait_ocr(match=re.compile("式神|寄养"),box=self.box_of_screen(0.05, 0.04, 0.19, 0.11)):
             self.log_warning("找到Utilize_Select")
         else:
             # if results := self.ocr(box=self.box_of_screen(0.88, 0.13, 0.97, 0.22)):

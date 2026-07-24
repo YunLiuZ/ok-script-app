@@ -151,6 +151,10 @@ class BaseOmjTask(BaseTask):
         if btns := self.find_feature('Home_Button', box=self.B('Home_Button'), threshold=0.8):
             self.click(btns[0], after_sleep=0.3)
             self.log_info('点击 Home_Button')
+        if res:=self.ocr(match=re.compile("确认|确定"),
+                    box=self.box_of_screen(0.2,0.2,0.8,0.8)):
+            self.log_info("点击确定")
+            self.click(res[0], after_sleep=0.2)
         if text := self.ocr(
             match=re.compile('正在连接|断开|重新连接|其他设备'),
             box=self.box_of_screen(0.34, 0.36, 0.66, 0.65),
@@ -161,15 +165,15 @@ class BaseOmjTask(BaseTask):
             if re.search('正在连接', msg):
                 self.log_info("网络问题，等待10秒后重试...")
                 self.sleep(10)
-                return self.unexpected_error()
+                self.unexpected_error()
 
             if re.search('断开|重新连接', msg):
                 self.log_info("游戏已断开连接，重启游戏")
-                return self.restart_game()
+                self.restart_game()
 
             if re.search('其他设备', msg):
                 self.log_info("检测到其他设备登录，重启游戏")
-                return self.restart_game()
+                self.restart_game()
     def start_game(self):
         pkg = self.executor.config.get('adb', {}).get('packages', [''])[0]
         self.log_info("→ 启动游戏...")
@@ -226,15 +230,10 @@ class BaseOmjTask(BaseTask):
                 f'monkey -p {pkg} -c android.intent.category.LAUNCHER 1',
                 timeout=10,
             )
+            self.sleep(10)
         except Exception as e:
             self.log_error(f"启动游戏失败: {e}")
             return False
-
-        if wait_load:
-            self.log_info("→ 等待游戏加载 (15s)...")
-            self.sleep(15)
-
-        self.log_info("游戏重启完成")
         return True
 
     def unexpected_error(self):
@@ -343,7 +342,28 @@ class BaseOmjTask(BaseTask):
             self.log_info('点击 Home_Button')
             if self.In_Home():
                 return True
-        return self.Back_Home_loop()
+        if self.Back_Home_loop():
+            return True
+        else:
+            self.log_warning("无法回到主页，可能出现未知错误，尝试重启")
+        if self.wait_until(
+                    condition=lambda:self.base_scene(),
+                                        time_out=60,pre_action=lambda : self.log_page(),raise_if_not_found=False
+                ):
+            self.logged_in = True
+            self.log_info("游戏启动成功")
+        else:
+            self.log_warning("出现未知错误！重启")
+            self.restart_game()
+            if self.wait_until(
+                    condition=lambda: self.base_scene(),
+                    time_out=120, pre_action=lambda: self.log_page(), raise_if_not_found=False
+            ):
+                self.logged_in = True
+                return True
+            else:
+                self.log_warning("无法恢复，请手动查看情况")
+                return False
 
     def Back_Home_loop(self):
         """顽固路径：循环消弹窗直到回到主页。"""
@@ -357,22 +377,25 @@ class BaseOmjTask(BaseTask):
                 self.click(btns[0], after_sleep=0.2)
                 self.log_info('关闭弹窗')
                 return
-            if btns := self.find_feature( 'Cancel_Old',
+            elif btns := self.find_feature( 'Cancel_Old',
                                           box=cancel_box, threshold=0.8):
                 self.click(btns[0], after_sleep=0.2)
                 self.log_info('关闭弹窗')
                 return
-            if btns := self.find_feature('Back', box=self.B('Back'), threshold=0.8):
+            elif btns := self.find_feature('Back', box=self.B('Back'), threshold=0.8):
                 self.click(btns[0], after_sleep=0.5)
                 self.log_info('点击 Back')
                 return
-            if btns := self.find_feature('Home_Button', box=self.B('Home_Button'), threshold=0.8):
+            elif btns := self.find_feature('Home_Button', box=self.B('Home_Button'), threshold=0.8):
                 self.click(btns[0], after_sleep=0.3)
                 self.log_info('点击 Home_Button')
-
+            else:
+                #如果卡在战斗失败 点击应该有用
+                self.click_relative(0.2,0.2,after_sleep=0.1)
+                self.click_relative(0.2, 0.2, after_sleep=0.1)
         return self.wait_until(
             self.In_Home,
-            time_out=5,
+            time_out=20,
             post_action=try_back,
             raise_if_not_found=False,
         )

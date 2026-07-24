@@ -11,7 +11,7 @@ class AreaBossTask(BaseBattleTask):
     def run(self):
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            group, team = self._parse_preset()
+            group, team = self._parse_preset(self.config["Preset Team"])
             self.SwitchSoul_by_num(group, team)
         if not self.AreaBoss_page():
             self.log_warning("找不到鬼王页面")
@@ -75,7 +75,13 @@ class AreaBossTask(BaseBattleTask):
             if self.count == 1:
                 self.log_info("检测是否为自动")
                 self.change_auto()
-            self.Find_finish(self.config["BattleTime"])
+            res = self.Find_finish(self.config["BattleTime"])
+            if res == 2:
+                self.log_warning("战斗失败！！")
+                return False
+            elif res == 3:
+                self.log_warning("战斗超时！！")
+                return False
             
             if not self.wait_click_feature('Daily_New_Cancel', threshold=0.7,
                                     box=self.B('Daily_New_Cancel'),

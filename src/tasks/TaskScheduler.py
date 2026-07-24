@@ -1,4 +1,5 @@
 """任务编排器：勾选任务后在「一键多任务」设优先级。"""
+from ok import communicate
 from src.globals import ALL_TASK_NAMES, TASK_MAP as TM
 from src.tasks.BaseOmjTask import BaseOmjTask
 
@@ -47,10 +48,15 @@ class TaskScheduler(BaseOmjTask):
             self.log_info(f"--- [{i}] 开始: {name} ---")
             t = task_cls(self.executor, self.scene)
             t.after_init(executor=self.executor, scene=self.scene)
+            t._enabled = True
+            self.executor.current_task = t
+            communicate.task.emit(t)
 
             ok = t.run_safe()
+
+            self.executor.current_task = self
+            communicate.task.emit(self)
             self.log_info(f"--- [{i}] 结束: {name} ---")
             if not ok:
-                self.log_warning(f"--- [{i}] {name} 失败，中断后续任务 ---")
-                self.pending_tasks = [(j + i, n) for j, n in enumerate(ordered[i - 1:])]
-                return False
+                self.log_warning(f"--- [{i}] {name} 失败，继续下一任务 ---")
+                continue
