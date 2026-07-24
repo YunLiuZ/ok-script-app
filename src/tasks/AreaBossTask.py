@@ -11,8 +11,8 @@ class AreaBossTask(BaseBattleTask):
     def run(self):
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            group, team = self._parse_preset(self.config["Preset Team"])
-            self.SwitchSoul_by_num(group, team)
+            self.group, self.team = self._parse_preset(self.config["RealmRaid_Team"])
+            self.SwitchSoul_by_num(self.group, self.team)
         if not self.AreaBoss_page():
             self.log_warning("找不到鬼王页面")
             return False

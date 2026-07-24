@@ -10,6 +10,8 @@ class BaseBattleTask(BaseOmjTask):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.group = 0
+        self.team = 0
 
         self.default_config.update({
             "Lock Team Enable": True,
@@ -128,8 +130,6 @@ class BaseBattleTask(BaseOmjTask):
                 self.log_info('找不到Home_Shikigami_Chronicles')
         self.in_home_and_back()
 
-
-
     def Lock_team(self, confirm_box: tuple):
         LOCK_NAMES = ["Soul_Lock", "Lock", "Areaboss_Lock", "RealmRaid_Lock"]
         NOT_LOCK_NAMES = ["Soul_Not_Lock", "Not_Lock", "Areaboss_Not_Lock", "RealmRaid_Not_Lock"]
@@ -162,9 +162,8 @@ class BaseBattleTask(BaseOmjTask):
             tabs.insert(0, first)
         return tabs
 
-    def Change_team(self):
+    def Change_team(self,group:int,team:int):
         self.ocr_and_click(["预","设"],box=self.box_of_screen(0,0.87,0.15,1))# (0.8781, 0.7701, 0.9625, 0.8535)
-        group, team = self._parse_preset(self.config["Preset Team"])
         group_rows = {1: 0.36, 2: 0.45, 3: 0.54, 4: 0.63, 5: 0.72, 6: 0.81, 7: 0.90}
         self.click_nth('x', 0.76, group_rows, group, "预设组")
 
@@ -174,9 +173,9 @@ class BaseBattleTask(BaseOmjTask):
         self.ocr_and_click("出战",1,box=self.box_of_screen(0.26, 0.88, 0.40, 0.96))
         if not self.ocr_and_click("确定",time_out=6,box=self.box_of_screen(0.45, 0.57, 0.54, 0.62)):
             if self.ocr_and_click("准备",box=self.box_of_screen(0.87, 0.77, 0.96, 0.85)):
-                True
+                return True
             else:
-                False
+                return False
         else:
             if self.ocr_and_click("准备",box=self.box_of_screen(0.87, 0.77, 0.96, 0.85)):
                 return True

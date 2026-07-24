@@ -33,8 +33,8 @@ class RealmRaidTask(BaseBattleTask):
 
         if self.config["RealmRaid"]:
             if self.config["Preset Enable"]:
-                group, team = self._parse_preset(self.config["RealmRaid_Team"])
-                self.SwitchSoul_by_num(group, team)
+                self.group, self.team = self._parse_preset(self.config["RealmRaid_Team"])
+                self.SwitchSoul_by_num(self.group, self.team)
             if not self.RealmRaid_page():
                 self.log_warning("找不到结界页面")
                 return False
@@ -52,8 +52,8 @@ class RealmRaidTask(BaseBattleTask):
             if self.config["RealmRaid"]:
                 if self.config["RyouToppa_Team"] != self.config["RealmRaid_Team"]:
                     if self.config["Preset Enable"]:
-                        group, team = self._parse_preset(self.config["RyouToppa_Team"])
-                        self.SwitchSoul_by_num(group, team)
+                        self.group, self.team = self._parse_preset(self.config["RealmRaid_Team"])
+                        self.SwitchSoul_by_num(self.group, self.team)
             else:
                 if self.config["RealmRaid"]:
                     group, team = self._parse_preset(self.config["RyouToppa_Team"])

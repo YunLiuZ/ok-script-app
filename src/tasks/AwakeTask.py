@@ -32,8 +32,8 @@ class SoulZonesTask(BuffBattleTask):
     def run(self):
         self.in_home_and_back()
         if self.config["Preset Enable"]:
-            group, team = self._parse_preset(self.config["Preset Team"])
-            self.SwitchSoul_by_num(group, team)
+            self.group, self.team = self._parse_preset(self.config["RealmRaid_Team"])
+            self.SwitchSoul_by_num(self.group, self.team)
 
         if self.config["UserStatus"] == "队长":
             if not self.awake_page():

@@ -25,9 +25,11 @@ class GameEventsBattleTask(BaseBattleTask):
         })
 
     def run(self):
-        # self.SwitchSoul_by_num(int(self.config["Preset Group"]),int(self.config["Preset Team"]))
-        # self.reset()
         self.in_home_and_back()
+        if self.config["Preset Enable"]:
+            self.group, self.team = self._parse_preset(self.config["RealmRaid_Team"])
+            self.SwitchSoul_by_num(self.group, self.team)
+
         self.Battle_page()
         self.Battle()
 

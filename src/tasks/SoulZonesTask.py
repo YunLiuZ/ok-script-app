@@ -43,7 +43,7 @@ class SoulZonesTask(BuffBattleTask):
         self.in_home_and_back()
 
         if self.config["Preset Enable"]:
-            self._switch_preset_by_soul_zone()
+            self.group,self.team = self._switch_preset_by_soul_zone()
 
         if self.config["UserStatus"] == "队长":
             if not self.SoulZones_page():
@@ -107,7 +107,7 @@ class SoulZonesTask(BuffBattleTask):
                     team = int(parts[1].strip())
                     self.log_info(f"({self.config['Soul Zones']}) → {key}: 组{group} 队{team}")
                     self.SwitchSoul_by_num(group, team)
-                    return
+                    return group, team
         # 兜底：使用默认的 Preset Team
         self.log_info("使用默认预设队伍")
         group, team = self._parse_preset(self.config["Preset Team"])
@@ -226,6 +226,7 @@ class SoulZonesTask(BuffBattleTask):
         targets = [self.config["Friend 1"]]
         if self.config["Friend 2"]:
             targets.append(self.config["Friend 2"])
+
         if lock_res:=self.Lock_team((0.07,0.87,0.12,0.97)):
             self.log_info("锁")
         else:
@@ -249,7 +250,7 @@ class SoulZonesTask(BuffBattleTask):
                                 self.ocr_and_click("准备",box=self.box_of_screen(0.87, 0.77, 0.96, 0.85))
                                 self.log_warning("请锁定阵容")
                             else:
-                                self.Change_team()
+                                self.Change_team(self.group,self.team)
                         self.log_info("检测是否为自动")
                         self.change_auto()
                     res = self.Find_finish(self.config["BattleTime"])
